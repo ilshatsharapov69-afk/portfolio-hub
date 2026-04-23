@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'AI/automation engineer — portfolio of shipped projects.' } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-neutral-950 text-neutral-200 antialiased">
+    <div class="max-w-5xl mx-auto px-6 py-10 md:py-16">
+      <header class="mb-12 flex items-center justify-between">
+        <a href="/" class="font-semibold text-neutral-100 hover:text-white transition">
+          Ilshat Sharapov
+        </a>
+        <nav class="text-sm text-neutral-400 flex gap-5">
+          <a href="/" class="hover:text-neutral-100 transition">Cases</a>
+          <a href="https://github.com/ilshatsharapov69-afk" target="_blank" rel="noopener" class="hover:text-neutral-100 transition">GitHub</a>
+        </nav>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="mt-24 pt-8 border-t border-neutral-800 text-sm text-neutral-500 flex flex-wrap gap-4 justify-between">
+        <span>Built with Astro on Cloudflare Pages</span>
+        <span>
+          <a href="mailto:sherlock753cc@gmail.com" class="hover:text-neutral-300 transition">sherlock753cc@gmail.com</a>
+        </span>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Command Center</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f1117;--card:#1a1d27;--card2:#1e2233;--border:#2a2e3f;--text:#e4e4e7;--dim:#9ca3af;--accent:#6366f1;--money:#ef4444;--demo:#eab308;--learn:#22c55e;--tools:#6b7280;--gold:#fbbf24;--xp:#8b5cf6}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;min-height:100vh}
+
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 16px rgba(239,68,68,.5)}}
+@keyframes softPulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes fireGlow{0%,100%{box-shadow:0 0 15px rgba(239,68,68,.06)}50%{box-shadow:0 0 35px rgba(239,68,68,.2)}}
+@keyframes xpShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes goldShine{0%,100%{border-color:rgba(251,191,36,.15)}50%{border-color:rgba(251,191,36,.5)}}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#1e1b4b,#312e81,#1e1b4b);padding:10px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.hdr-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hdr h1{font-size:22px;font-weight:700}
+.hdr-meta{font-size:11px;color:var(--dim)}
+.hdr-kpis{display:flex;gap:8px;margin-left:auto}
+.kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:4px 14px;text-align:center}
+.kpi .n{font-size:22px;font-weight:700;color:var(--accent)}.kpi .n.gld{color:var(--gold)}.kpi .n.grn{color:var(--learn)}
+.kpi .l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.streak{font-size:15px;font-weight:700;white-space:nowrap}
+.streak .fire{color:#f97316}
+.mult{margin-left:4px}.mult.m1{color:var(--text)}.mult.m2{color:#f97316}.mult.m3{color:var(--gold)}.mult.m4{background:linear-gradient(90deg,#ef4444,#eab308,#22c55e,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.xp-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+.xp-lbl{font-size:12px;color:var(--gold);font-weight:600;white-space:nowrap}
+.xp-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--xp),var(--gold),var(--xp));background-size:200% 100%;border-radius:4px;animation:xpShimmer 3s linear infinite}
+.xp-pts{font-size:12px;color:var(--dim);white-space:nowrap}
+
+.main{padding:16px 24px}
+
+/* TODAY PANEL */
+.today-panel{margin-bottom:16px}
+.quote-bar{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(139,92,246,.06));border:1px solid rgba(99,102,241,.12);border-radius:10px;padding:12px 20px;margin-bottom:12px;display:flex;align-items:center;gap:12px;transition:opacity .5s}
+.quote-bar.out{opacity:0}
+.quote-bar .q{font-size:15px;font-style:italic;flex:1}.quote-bar .a{font-size:13px;color:var(--dim);margin-top:2px}
+.today-grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+.tasks-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;border-left:4px solid var(--accent)}
+.tasks-card h2{font-size:18px;font-weight:600;margin-bottom:4px}
+.tasks-focus{font-size:14px;color:var(--dim);margin-bottom:12px}
+.kaizen-line{background:linear-gradient(135deg,rgba(34,197,94,.06),rgba(251,191,36,.06));border:1px solid rgba(34,197,94,.15);border-radius:8px;padding:8px 14px;font-size:14px;margin-bottom:12px}
+.task-list{list-style:none}
+.task-list li{padding:8px 10px;font-size:15px;display:flex;align-items:center;gap:10px;border-radius:8px;margin:3px 0;transition:.2s}
+.task-list li:hover{background:rgba(255,255,255,.03)}
+.task-list li.urgent{animation:urgentPulse 2s ease-in-out infinite}
+.task-list li.pending{animation:softPulse 3s ease-in-out infinite}
+.chk{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.chk.ok{background:var(--learn);border-color:var(--learn);color:#fff}
+.done-t{text-decoration:line-through;color:var(--dim)}
+.rw{font-size:13px;color:var(--learn);margin-left:auto;font-weight:600;white-space:nowrap}
+.prog-row{display:flex;align-items:center;gap:10px;margin-top:14px}
+.prog-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--learn));border-radius:4px}
+.prog-lbl{font-size:13px;color:var(--dim);white-space:nowrap}
+.blocker{background:rgba(239,68,68,.08);border-radius:8px;padding:8px 14px;font-size:14px;color:#fca5a5;margin-top:10px}
+
+/* RIGHT SIDE: Sprint + YouTube */
+.right-side{display:flex;flex-direction:column;gap:12px}
+.sprint-card{background:linear-gradient(135deg,#1a0a0a,#2d1010 40%,var(--card));border:2px solid rgba(239,68,68,.25);border-radius:12px;padding:16px 18px;animation:fireGlow 4s ease-in-out infinite}
+.sprint-card h3{font-size:16px;font-weight:600;color:var(--money);margin-bottom:8px}
+.sp-stats{display:flex;gap:8px;margin-bottom:10px}
+.sp-s{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px 10px;text-align:center;flex:1}
+.sp-s .v{font-size:18px;font-weight:700}.sp-s .l{font-size:9px;color:var(--dim);text-transform:uppercase}
+.tl{display:flex;gap:2px;height:22px;border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tl-d{flex:1;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+.tl-d.past{background:var(--learn);color:#000}.tl-d.now{background:var(--money);color:#fff;animation:urgentPulse 2s infinite}.tl-d.fut{background:rgba(255,255,255,.05);color:var(--dim)}
+.sp-next{background:rgba(239,68,68,.08);border-radius:6px;padding:8px 12px;font-size:13px}.sp-next b{color:var(--money)}
+.sp-channels{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.sp-ch{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:6px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center}
+.sp-ch-n{font-size:12px;font-weight:600}.sp-ch-m{font-size:12px;color:var(--accent)}
+
+/* YouTube */
+.yt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.yt-card h3{font-size:14px;font-weight:600;margin-bottom:8px;color:var(--dim)}
+.yt-card iframe{border-radius:8px;width:100%;aspect-ratio:16/9}
+.yt-nav{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.yt-btn{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--dim);cursor:pointer;font-size:12px;font-family:inherit}
+.yt-btn:hover{background:var(--accent);color:#fff}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--card);padding:6px;border-radius:12px;margin-bottom:16px}
+.tab{padding:10px 28px;border:none;border-radius:8px;background:transparent;color:var(--dim);font-size:15px;font-weight:500;cursor:pointer;transition:.2s;font-family:inherit}
+.tab:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.tab.on{background:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(99,102,241,.4)}
+.panel{display:none;animation:fadein .3s}.panel.on{display:block}
+
+/* PROJECTS */
+.flt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.fb{padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--dim);cursor:pointer;font-size:14px;transition:.2s;font-family:inherit}
+.fb:hover{background:var(--card2);color:var(--text)}
+.fb.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.fb.on-money{background:var(--money);border-color:var(--money);color:#fff}
+.fb.on-demo{background:var(--demo);border-color:var(--demo);color:#000}
+.fb.on-learn{background:var(--learn);border-color:var(--learn);color:#000}
+.fb.on-tools{background:var(--tools);border-color:var(--tools);color:#fff}
+.cat-sec{margin-bottom:20px}
+.cat-h{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;padding:6px 0;margin-bottom:12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.cat-dot{width:8px;height:8px;border-radius:50%}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:4px solid var(--tools);transition:.2s;cursor:pointer}
+.pc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.pc.cm{border-left-color:var(--money)}.pc.cd{border-left-color:var(--demo)}.pc.cl{border-left-color:var(--learn)}.pc.ct{border-left-color:var(--tools)}
+.pc.blk{animation:urgentPulse 3s ease-in-out infinite}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px}
+.pc-nm{font-size:16px;font-weight:600}
+.pc-bg{display:flex;gap:4px;align-items:center}
+.bdg{font-size:11px;padding:2px 8px;border-radius:8px;font-weight:500}
+.b-todo{background:rgba(107,114,128,.2);color:#9ca3af}.b-ip{background:rgba(59,130,246,.15);color:#60a5fa}.b-paused{background:rgba(245,158,11,.15);color:#fbbf24}.b-done{background:rgba(34,197,94,.15);color:#4ade80}.b-active{background:rgba(34,197,94,.15);color:#4ade80}
+.rwrd{background:rgba(34,197,94,.12);color:var(--learn);font-size:11px;padding:2px 8px;border-radius:8px;font-weight:700}
+.role-p{background:rgba(107,114,128,.15);color:#9ca3af;font-size:11px;padding:2px 8px;border-radius:8px}
+.role-b{background:rgba(139,92,246,.12);color:#a78bfa;font-size:11px;padding:2px 8px;border-radius:8px}
+.pc-d{font-size:14px;color:var(--dim);margin-bottom:8px}
+.today-row{display:flex;gap:6px;margin:4px 0;flex-wrap:wrap}
+.today-chip{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.15);border-radius:4px;padding:2px 8px;font-size:12px;color:var(--gold);font-weight:600}
+.pc-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:2px}
+.pc-f{height:100%;border-radius:3px}.pc-f.lo{background:var(--money)}.pc-f.mi{background:var(--demo)}.pc-f.hi{background:var(--learn)}
+.pc-pct{font-size:12px;color:var(--dim);text-align:right;margin-bottom:6px}
+.pc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.ptag{font-size:12px;padding:1px 8px;border-radius:4px;background:rgba(99,102,241,.08);color:#a5b4fc}
+.pc-nx{font-size:14px;padding:6px 0;border-top:1px solid rgba(255,255,255,.04)}.pc-nx-l{color:var(--dim);font-size:12px}
+.pc-bk{font-size:13px;color:#fca5a5;margin-top:3px}
+.pc-det{max-height:0;overflow:hidden;transition:max-height .3s}.pc-det.open{max-height:600px}
+.pc-det-in{padding-top:8px;border-top:1px solid rgba(255,255,255,.04);margin-top:8px}
+.ms-row{font-size:13px;display:flex;align-items:center;gap:6px;padding:2px 0}.ms-ok{color:var(--learn)}.ms-pn{color:var(--dim)}
+.mini-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ms-box{background:rgba(255,255,255,.03);border-radius:6px;padding:4px 10px;text-align:center}
+.ms-v{font-size:15px;font-weight:700;color:var(--accent)}.ms-l{font-size:10px;color:var(--dim);text-transform:uppercase}
+.log-e{font-size:13px;color:var(--dim);padding:2px 0;display:flex;gap:8px}.log-d{color:var(--accent);font-weight:500;font-size:12px}
+.pc-tog{font-size:13px;color:var(--dim);cursor:pointer;margin-top:6px;display:flex;align-items:center;gap:4px;user-select:none}.pc-tog:hover{color:var(--text)}
+
+/* PROGRESS */
+.prog-grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
+.ach-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.ach-card h3{font-size:18px;font-weight:600;margin-bottom:12px}
+.ach-tabs{display:flex;gap:6px;margin-bottom:14px}
+.ach-tb{font-size:13px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-family:inherit}
+.ach-tb.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.ach-g{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.ach{background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:.2s}
+.ach:hover{transform:scale(1.08);z-index:2;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.ach.earned{border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.04);animation:goldShine 4s ease-in-out infinite}
+.ach.locked{opacity:.3;filter:grayscale(1)}
+.ach-i{font-size:28px}.ach-n{font-size:11px;font-weight:600;margin-top:4px;line-height:1.2}
+.kaizen-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.kaizen-card h3{font-size:18px;font-weight:600;margin-bottom:12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:12px}
+.cal-dow{font-size:11px;color:var(--dim);padding:4px 0;font-weight:600}
+.cal-d{font-size:14px;padding:8px 0;border-radius:6px;cursor:default}
+.cal-d.empty{visibility:hidden}
+.cal-d.today{outline:2px solid var(--accent);font-weight:700}
+.cal-d.future{color:rgba(255,255,255,.1)}
+.cal-d.lv0{background:rgba(239,68,68,.3);color:#fca5a5}
+.cal-d.lv1{background:rgba(234,179,8,.3);color:#fde68a}
+.cal-d.lv2{background:rgba(34,197,94,.4);color:#bbf7d0;font-weight:600}
+.cal-legend{display:flex;gap:12px;justify-content:center;font-size:12px;color:var(--dim);margin-bottom:16px}
+.cal-legend span{display:flex;align-items:center;gap:4px}
+.cal-legend .dot{width:12px;height:12px;border-radius:3px}
+.kz-big{text-align:center;margin-top:8px}
+.kz-big .num{font-size:36px;font-weight:700;color:var(--gold)}
+.kz-big .sub{font-size:14px;color:var(--dim)}
+
+/* Popup */
+.ach-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:32px;z-index:200;min-width:280px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:fadein .2s}
+.ach-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:199;cursor:pointer}
+</style>
+</head>
+<body>
+<script src="dashboard-data.js"></script>
+<script>if(typeof DATA==='undefined'){document.addEventListener('DOMContentLoaded',()=>{document.body.innerHTML='<div style="color:#fff;padding:60px;text-align:center;font-size:18px"><h2>Dashboard data not found</h2><p style="color:#9ca3af;margin-top:12px">Run: <code style="background:#1a1d27;padding:8px 16px;border-radius:8px;color:#6366f1">python d:/DeepReserch/sync-dashboard.py</code></p></div>';});}</script>
+
+<div class="hdr">
+  <div class="hdr-row">
+    <div><h1>Command Center</h1><div class="hdr-meta">Synced <span id="ts"></span></div></div>
+    <div class="hdr-kpis" id="kpis"></div>
+    <div class="streak" id="streak"></div>
+  </div>
+  <div class="xp-row" id="xp"></div>
+</div>
+
+<div class="main">
+  <div class="today-panel">
+    <div class="quote-bar" id="qbar"></div>
+    <div class="today-grid">
+      <div class="tasks-card" id="tasks"></div>
+      <div class="right-side">
+        <div class="sprint-card" id="sprint"></div>
+        <div class="yt-card" id="yt"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-t="projects">\uD83D\uDCCB Projects</button>
+    <button class="tab" data-t="progress">\uD83D\uDCC8 Progress</button>
+  </div>
+  <div id="p-projects" class="panel on"></div>
+  <div id="p-progress" class="panel"></div>
+</div>
+<div id="popup"></div>
+
+<script>
+(function(){
+const CAT={money:{lbl:'Money',icon:'\uD83D\uDCB0',c:'var(--money)',cls:'cm'},demo:{lbl:'Demo / Portfolio',icon:'\uD83C\uDFA8',c:'var(--demo)',cls:'cd'},learning:{lbl:'Learning',icon:'\uD83D\uDCDA',c:'var(--learn)',cls:'cl'},tools:{lbl:'Tools',icon:'\u2699\uFE0F',c:'var(--tools)',cls:'ct'}};
+const SL={'todo':'todo','in-progress':'in progress','paused':'paused','done':'done','active':'active'};
+const SC={'todo':'b-todo','in-progress':'b-ip','paused':'b-paused','done':'b-done','active':'b-active'};
+let fC='all',fS='all',achV='locked';
+
+// Tabs
+document.getElementById('tabs').onclick=e=>{const t=e.target.closest('.tab');if(!t)return;document.querySelectorAll('.tab,.panel').forEach(el=>el.classList.remove('on'));t.classList.add('on');document.getElementById('p-'+t.dataset.t).classList.add('on');};
+
+// Quotes
+const Q=[{t:"Done is better than perfect.",a:"Sheryl Sandberg"},{t:"Ship it. Fix it later.",a:"Reid Hoffman"},{t:"Your first $1 online is harder than your first $10,000.",a:""},{t:"Cold outreach = numbers game. 100 emails = 5 replies = 1 client.",a:""},{t:"Every expert was once a beginner.",a:"Helen Hayes"},{t:"Money follows value. Create value first.",a:""},{t:"The only way to do great work is to love what you do.",a:"Steve Jobs"},{t:"The secret of getting ahead is getting started.",a:"Mark Twain"},{t:"Small daily improvements lead to stunning results.",a:"Robin Sharma"},{t:"Stop overthinking. Start doing.",a:""},{t:"1% better every day. Kaizen.",a:""},{t:"You are what you repeatedly do.",a:"Aristotle"},{t:"Consistency beats talent.",a:""},{t:"Dream big. Start small. Act now.",a:"Robin Sharma"},{t:"Fall seven times, stand up eight.",a:"\u65E5\u672C"},{t:"Revenue solves all problems.",a:""},{t:"A journey of a thousand miles begins with a single step.",a:"Lao Tzu"},{t:"The harder you work, the luckier you get.",a:"Gary Player"},{t:"Hustle in silence. Let success make the noise.",a:""},{t:"Opportunities don't happen. You create them.",a:"Chris Grosser"}];
+let qi=Math.floor(Math.random()*Q.length);
+
+// YouTube videos
+const YT=[
+  {id:"ZXsQAXx_ao0",t:"Steve Jobs: Stay Hungry, Stay Foolish"},
+  {id:"UF8uR6Z6KLc",t:"Steve Jobs: Stanford Speech"},
+  {id:"5MgBikgcWnY",t:"Navy SEAL Motivation"},
+  {id:"mgmVOuLgFB0",t:"Dream - Motivational Video"},
+  {id:"g-jwWYX7Jlo",t:"Elon Musk: Work Ethics"},
+  {id:"D_Vg4uyYwEk",t:"Gary Vee: Document Don't Create"},
+  {id:"Tuw8hxrFBH8",t:"Jordan Peterson: Clean Your Room"},
+  {id:"IdTMDpizis8",t:"Rocky Balboa Speech"},
+  {id:"wIDBN1NQPCI",t:"Will Smith: Self Discipline"},
+  {id:"y0GgRv2hcmg",t:"Why Most People Are Lazy"},
+  {id:"kJdXjtSnZTI",t:"The Art of Not Giving Up"},
+  {id:"3sK3wJAxGfs",t:"Rise and Grind - Morning Motivation"},
+];
+let yi=Math.floor(Math.random()*YT.length);
+
+// ── HEADER ──
+function rKpis(){
+  const p=DATA.projects,s=DATA.sprint||{};
+  document.getElementById('kpis').innerHTML=[
+    ['Projects',p.length,''],['Active',p.filter(x=>['in-progress','active','todo'].includes(x.status)).length,''],
+    ['Done',p.filter(x=>x.status==='done').length,'grn'],['Earned','$'+(s.earned||0),'gld'],
+  ].map(([l,v,c])=>`<div class="kpi"><div class="n ${c}">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+function rXP(){const x=DATA.xp,p=Math.min(100,Math.round(x.current/x.nextLevel*100));document.getElementById('xp').innerHTML=`<span class="xp-lbl">Lv.${x.level} ${x.title}</span><div class="xp-bar"><div class="xp-fill" style="width:${p}%"></div></div><span class="xp-pts">${x.current} / ${x.nextLevel} XP</span>`;}
+function rStreak(){
+  const s=DATA.streak||{},k=DATA.kaizen||{},m=k.multiplier||1;
+  const mc=m>=2?'m4':m>=1.3?'m3':m>=1.1?'m2':'m1';
+  document.getElementById('streak').innerHTML=s.current>0?`<span class="fire">\uD83D\uDD25 ${s.current}d</span><span class="mult ${mc}">\u00D7${m.toFixed(2)}</span>`:'';}
+
+// ── QUOTE ──
+function rQuote(){const q=Q[qi%Q.length];document.getElementById('qbar').innerHTML=`<div style="font-size:22px;flex-shrink:0">\uD83D\uDCA1</div><div><div class="q">"${q.t}"</div>${q.a?`<div class="a">\u2014 ${q.a}</div>`:''}</div>`;}
+setInterval(()=>{const el=document.getElementById('qbar');el.classList.add('out');setTimeout(()=>{qi++;rQuote();el.classList.remove('out');},500);},30000);
+
+// ── TASKS ──
+function rTasks(){
+  const d=DATA.daily||{},tasks=d.tasks||[];const dc=tasks.filter(t=>t.done).length,tt=tasks.length,pct=tt?Math.round(dc/tt*100):0;
+  let first=true;
+  const th=tasks.map(t=>{let cls='';if(!t.done&&first){cls='urgent';first=false;}else if(!t.done)cls='pending';
+    return `<li class="${cls}"><span class="chk ${t.done?'ok':''}">${t.done?'\u2713':''}</span><span class="${t.done?'done-t':''}">${t.text}</span>${t.reward?`<span class="rw">${t.reward}</span>`:''}</li>`;}).join('');
+  document.getElementById('tasks').innerHTML=`<h2>\uD83D\uDCC5 Today</h2><div class="tasks-focus">${d.focus||''}</div>${d.kaizen?`<div class="kaizen-line">\uD83C\uDFAF 1%: ${d.kaizen}</div>`:''}<ul class="task-list">${th}</ul><div class="prog-row"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><span class="prog-lbl">${dc}/${tt} (${pct}%)</span></div>${d.blockers?`<div class="blocker">\u26A0\uFE0F ${d.blockers}</div>`:''}${d.notes?`<div style="font-size:14px;color:var(--dim);margin-top:6px">\uD83D\uDCDD ${d.notes}</div>`:''}`;
+}
+
+// ── SPRINT ──
+function rSprint(){
+  const s=DATA.sprint||{};if(!s.name)return;const dd=(s.days||[]).filter(x=>x.done).length;const pct=s.totalDays?Math.round(dd/s.totalDays*100):0;
+  document.getElementById('sprint').innerHTML=`<h3>\uD83D\uDD25 ${s.name}</h3><div class="sp-stats"><div class="sp-s"><div class="v" style="color:var(--gold)">$${s.earned||0}</div><div class="l">Earned</div></div><div class="sp-s"><div class="v" style="color:var(--money)">Day ${s.currentDay||0}</div><div class="l">of ${s.totalDays}</div></div><div class="sp-s"><div class="v">${pct}%</div><div class="l">Done</div></div></div><div class="tl">${(s.days||[]).map(d=>`<div class="tl-d ${d.done?'past':d.day===s.currentDay?'now':'fut'}" title="Day ${d.day}: ${d.label}">${d.day}</div>`).join('')}</div><div class="sp-next"><b>Next:</b> ${s.nextAction||''}</div><div class="sp-channels">${(s.channels||[]).map(c=>`<div class="sp-ch"><span class="sp-ch-n">${c.name}</span><span class="sp-ch-m">${c.metric}</span></div>`).join('')}</div>`;
+}
+
+// ── YOUTUBE ──
+function rYT(){
+  const v=YT[yi%YT.length];
+  document.getElementById('yt').innerHTML=`<h3>\u25B6\uFE0F ${v.t}</h3><iframe src="https://www.youtube.com/embed/${v.id}" allowfullscreen></iframe><div class="yt-nav"><button class="yt-btn" id="yt-prev">\u25C0 Prev</button><button class="yt-btn" id="yt-next">Next \u25B6</button></div>`;
+  document.getElementById('yt-prev').onclick=()=>{yi--;rYT();};
+  document.getElementById('yt-next').onclick=()=>{yi++;rYT();};
+}
+
+// ── PROJECTS ──
+function rProjects(){
+  let h=`<div class="flt">${[{k:'all',l:'All'},{k:'money',l:'\uD83D\uDCB0 Money'},{k:'demo',l:'\uD83C\uDFA8 Demo'},{k:'learning',l:'\uD83D\uDCDA Learn'},{k:'tools',l:'\u2699\uFE0F Tools'}].map(b=>`<button class="fb ${fC===b.k?(b.k==='all'?'on':'on-'+b.k):''}" data-c="${b.k}">${b.l}</button>`).join('')}<span style="color:var(--dim);margin:0 6px">|</span>${[{k:'all',l:'All'},{k:'active',l:'Active'},{k:'paused',l:'Paused'},{k:'done',l:'Done'}].map(b=>`<button class="fb ${fS===b.k?'on':''}" data-s="${b.k}">${b.l}</button>`).join('')}</div>`;
+  for(const cat of['money','demo','learning','tools']){
+    if(fC!=='all'&&fC!==cat)continue;let ps=DATA.projects.filter(p=>p.category===cat);
+    if(fS!=='all'){ps=fS==='active'?ps.filter(p=>['in-progress','active','todo'].includes(p.status)):ps.filter(p=>p.status===fS);}
+    if(!ps.length)continue;ps.sort((a,b)=>(a.priority||99)-(b.priority||99));const ci=CAT[cat];
+    h+=`<div class="cat-sec"><div class="cat-h"><span class="cat-dot" style="background:${ci.c}"></span>${ci.icon} ${ci.lbl}<span style="color:var(--dim);font-weight:400;font-size:13px;margin-left:auto">${ps.length}</span></div><div class="pg">${ps.map(card).join('')}</div></div>`;
+  }
+  document.getElementById('p-projects').innerHTML=h;
+  document.querySelectorAll('#p-projects [data-c]').forEach(b=>b.onclick=()=>{fC=b.dataset.c;rProjects();});
+  document.querySelectorAll('#p-projects [data-s]').forEach(b=>b.onclick=()=>{fS=b.dataset.s;rProjects();});
+  document.querySelectorAll('#p-projects .pc-tog').forEach(t=>{t.onclick=e=>{e.stopPropagation();const d=t.closest('.pc').querySelector('.pc-det');d.classList.toggle('open');t.querySelector('.ar').textContent=d.classList.contains('open')?'\u25B2':'\u25BC';};});
+}
+function card(p){
+  const ci=CAT[p.category],pc=p.progress<30?'lo':p.progress<70?'mi':'hi';const ms=(p.milestones||[]),msd=ms.filter(m=>m.done).length;
+  const rw=p.expectedReward,role=p.role;const rwH=rw?`<span class="rwrd">$${rw.min}-${rw.max}</span>`:role==='portfolio'?'<span class="role-p">portfolio</span>':role==='brand'?'<span class="role-b">brand</span>':'';
+  const today=p.stats?Object.entries(p.stats).filter(([k])=>k.endsWith('Today')):[];const todayH=today.length?`<div class="today-row">${today.map(([k,v])=>`<span class="today-chip">${k.replace('Today','')} ${v}</span>`).join('')}</div>`:'';
+  const total=p.stats?Object.entries(p.stats).filter(([k,v])=>!k.endsWith('Today')&&(typeof v==='number'||typeof v==='string')):[];const totalH=total.length?`<div class="mini-stats">${total.map(([k,v])=>`<div class="ms-box"><div class="ms-v">${v}</div><div class="ms-l">${k}</div></div>`).join('')}</div>`:'';
+  const msH=ms.length?ms.map(m=>`<div class="ms-row"><span class="${m.done?'ms-ok':'ms-pn'}">${m.done?'\u2713':'\u25CB'}</span>${m.text}</div>`).join(''):'';
+  const logH=(p.log||[]).map(l=>`<div class="log-e"><span class="log-d">${l.date.slice(5)}</span>${l.text}</div>`).join('');
+  return `<div class="pc ${ci.cls} ${p.blockers?'blk':''}"><div class="pc-top"><span class="pc-nm">${p.name}</span><div class="pc-bg"><span class="bdg ${SC[p.status]||'b-todo'}">${SL[p.status]||p.status}</span>${rwH}</div></div><div class="pc-d">${p.description||''}</div>${todayH}<div class="pc-bar"><div class="pc-f ${pc}" style="width:${p.progress||0}%"></div></div><div class="pc-pct">${p.progress||0}%${ms.length?' \u2022 '+msd+'/'+ms.length+' ms':''}</div><div class="pc-tags">${(p.tags||[]).map(t=>`<span class="ptag">#${t}</span>`).join('')}</div><div class="pc-nx"><span class="pc-nx-l">\u27A1\uFE0F</span> ${p.nextAction||''}</div>${p.blockers?`<div class="pc-bk">\u26A0\uFE0F ${p.blockers}</div>`:''}<div class="pc-tog"><span class="ar">\u25BC</span> Details</div><div class="pc-det"><div class="pc-det-in">${totalH}${msH}${logH?'<div style="font-size:12px;color:var(--dim);margin:4px 0 2px">Log:</div>'+logH:''}</div></div></div>`;
+}
+
+// ── PROGRESS ──
+function rProgress(){
+  const a=DATA.achievements||[],k=DATA.kaizen||{},s=DATA.streak||{};
+  const earned=a.filter(x=>x.earned),locked=a.filter(x=>!x.earned),shown=achV==='earned'?earned:achV==='locked'?locked:a;
+  const hist=k.history||{};const now=new Date(),y=now.getFullYear(),mo=now.getMonth();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dim=new Date(y,mo+1,0).getDate(),fd=new Date(y,mo,1).getDay(),td=now.getDate(),off=(fd+6)%7;
+  let cal='<div class="cal-grid">';['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{cal+=`<div class="cal-dow">${d}</div>`;});
+  for(let i=0;i<off;i++)cal+='<div class="cal-d empty"></div>';
+  for(let d=1;d<=dim;d++){const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const cnt=hist[ds];const isTd=d===td;const isFut=d>td;let cls='cal-d';if(cnt!=null)cls+=cnt>=3?' lv2':cnt>=1?' lv1':' lv0';if(isTd)cls+=' today';if(isFut&&cnt==null)cls+=' future';cal+=`<div class="${cls}" title="${ds}${cnt!=null?' ('+cnt+')':''}">${d}</div>`;}
+  cal+='</div>';const mult=k.multiplier||1;
+  document.getElementById('p-progress').innerHTML=`<div class="prog-grid"><div class="ach-card"><h3>\uD83C\uDFC6 Achievements</h3><div class="ach-tabs"><button class="ach-tb ${achV==='locked'?'on':''}" data-av="locked">\uD83D\uDD12 Locked (${locked.length})</button><button class="ach-tb ${achV==='earned'?'on':''}" data-av="earned">\u2705 Earned (${earned.length})</button><button class="ach-tb ${achV==='all'?'on':''}" data-av="all">All</button></div><div class="ach-g">${shown.map(x=>`<div class="ach ${x.earned?'earned':'locked'}" data-aid="${x.id}" title="${x.desc}"><div class="ach-i">${x.icon}</div><div class="ach-n">${x.name}</div></div>`).join('')}</div></div><div class="kaizen-card"><h3>\uD83D\uDCC5 ${months[mo]} ${y}</h3>${cal}<div class="cal-legend"><span><span class="dot" style="background:rgba(239,68,68,.4)"></span>0 tasks</span><span><span class="dot" style="background:rgba(234,179,8,.4)"></span>1-2</span><span><span class="dot" style="background:rgba(34,197,94,.5)"></span>3+</span></div><div class="kz-big"><div class="num">\u00D7${mult.toFixed(2)}</div><div class="sub">Kaizen compound \u2022 \uD83D\uDD25 ${s.current||0}d streak</div></div><div style="font-size:14px;color:var(--dim);text-align:center;margin-top:8px">30d: \u00D7${(1.01**30).toFixed(2)} \u2022 100d: \u00D7${(1.01**100).toFixed(2)} \u2022 1yr: \u00D7${(1.01**365).toFixed(1)}</div><div style="font-size:14px;color:var(--dim);text-align:center;margin-top:4px">${k.totalActiveDays||0} total active days \u2022 Best: ${s.best||0}d</div></div></div>`;
+  document.querySelectorAll('.ach-tb').forEach(t=>{t.onclick=()=>{achV=t.dataset.av;rProgress();}});
+  document.querySelectorAll('.ach[data-aid]').forEach(el=>{el.onclick=()=>{const x=a.find(i=>i.id===el.dataset.aid);if(x){const st=x.earned?'<span style="background:rgba(34,197,94,.15);color:#4ade80;padding:6px 18px;border-radius:8px;font-size:14px">\u2705 Earned!</span>':'<span style="background:rgba(239,68,68,.1);color:#fca5a5;padding:6px 18px;border-radius:8px;font-size:14px">\uD83D\uDD12 Locked</span>';document.getElementById('popup').innerHTML=`<div class="ach-overlay" onclick="document.getElementById('popup').innerHTML=''"></div><div class="ach-popup"><div style="font-size:56px;margin-bottom:10px">${x.icon}</div><div style="font-size:20px;font-weight:700;margin-bottom:6px">${x.name}</div><div style="font-size:15px;color:var(--dim);margin-bottom:14px">${x.desc}</div>${st}</div>`;}};});
+}
+
+function R(){if(DATA.lastSynced)document.getElementById('ts').textContent=DATA.lastSynced;rKpis();rXP();rStreak();rQuote();rTasks();rSprint();rYT();rProjects();rProgress();}
+R();
+})();
+</script>
+</body>
+</html>

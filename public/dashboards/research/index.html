@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Freelance Business — Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #22263a;
+  --border: #2a2e3f;
+  --text: #e4e4e7;
+  --text-dim: #9ca3af;
+  --accent: #6366f1;
+  --accent-glow: rgba(99,102,241,.25);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,.12);
+  --yellow: #eab308;
+  --yellow-bg: rgba(234,179,8,.12);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,.12);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,.12);
+}
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(ellipse at 50% 0%, #1a1840 0%, #0f1117 50%);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 24px rgba(99,102,241,.10);
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.header-sub {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.header-stats {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.stat-box {
+  background: rgba(255,255,255,.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  padding: 8px 14px;
+  min-width: 110px;
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+.stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .5px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-value.green { color: var(--green); }
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: rgba(255,255,255,.08);
+  border-radius: 4px;
+  height: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 4px;
+  transition: width .5s ease;
+  box-shadow: 0 0 8px rgba(99,102,241,.3), 0 0 2px rgba(34,197,94,.2);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .2s;
+}
+.btn:hover { background: var(--card-hover); border-color: var(--accent); }
+.btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.danger:hover { background: var(--red-bg); }
+
+/* Main */
+.main { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+
+/* Day card */
+.day-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all .3s ease, box-shadow .3s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.day-card:hover {
+  box-shadow: 0 4px 20px rgba(99,102,241,.10);
+  border-color: rgba(99,102,241,.25);
+}
+.day-card.collapsed .day-body { display: none; }
+.day-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  border-left: 3px solid transparent;
+  transition: border-color .2s, background .2s;
+}
+.day-header:hover { background: var(--card-hover); border-left-color: var(--accent); }
+.day-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.day-title { flex: 1; font-weight: 600; font-size: 18px; }
+.day-progress-mini {
+  background: rgba(255,255,255,.08);
+  border-radius: 6px;
+  height: 6px;
+  width: 120px;
+  overflow: hidden;
+}
+.day-progress-mini-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 6px;
+  transition: width .4s;
+}
+.day-count { font-size: 14px; color: var(--text-dim); min-width: 40px; text-align: right; }
+.day-chevron { color: var(--text-dim); transition: transform .3s; font-size: 18px; }
+.day-card.collapsed .day-chevron { transform: rotate(-90deg); }
+
+.day-body { padding: 0 20px 16px; }
+
+/* Task */
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: background .2s;
+  flex-wrap: wrap;
+}
+.task:hover { background: rgba(255,255,255,.03); }
+.task.completed .task-text { text-decoration: line-through; color: var(--text-dim); }
+.task.completed .task-expand-btn { font-size: 10px; opacity: .5; }
+.task.completed .substep-progress { width: 50px; height: 4px; }
+.task.completed .task-substeps { padding-left: 20px; }
+.task.completed .substep { padding: 2px 6px; font-size: 12px; }
+.task.completed .substep-checkbox { width: 16px; height: 16px; font-size: 9px; }
+.task.completed .substep-text { font-size: 12px; }
+.task.completed .substep-add-row { display: none; }
+
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 13px;
+}
+.task-checkbox:hover { border-color: var(--accent); }
+.task-checkbox.checked { background: var(--green); border-color: var(--green); color: #fff; transform: scale(1.05); }
+.task-checkbox.in-progress { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+.task-checkbox.cancelled { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+
+.task-content { flex: 1; min-width: 0; }
+.task-text { font-size: 15px; cursor: text; }
+.task-text:focus { outline: none; background: rgba(255,255,255,.05); border-radius: 4px; padding: 2px 6px; margin: -2px -6px; }
+.task-meta { display: flex; gap: 8px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
+.task-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+.task-type-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.task-type-badge.type-user { background: rgba(245,158,11,.12); color: #f59e0b; border-color: rgba(245,158,11,.3); }
+.task-type-badge.type-claude { background: rgba(99,102,241,.12); color: #818cf8; border-color: rgba(99,102,241,.3); }
+.task-type-badge.type-collab { background: rgba(34,197,94,.12); color: #22c55e; border-color: rgba(34,197,94,.3); }
+.task-note-btn {
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+}
+.task-note-btn:hover { color: var(--accent); }
+.task-note {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-dim);
+  background: rgba(255,255,255,.03);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.task-note textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 40px;
+  outline: none;
+}
+.task-delete {
+  color: var(--text-dim);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s;
+  background: none;
+  border: none;
+  font-size: 16px;
+  padding: 4px;
+}
+.task:hover .task-delete { opacity: 1; }
+.task-delete:hover { color: var(--red); }
+
+.task-status-menu {
+  position: absolute;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 200;
+}
+.task-status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.task-status-option:hover { background: var(--card-hover); }
+
+/* Substeps expand button */
+.task-expand-btn {
+  font-size: 11px;
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.task-expand-btn:hover { color: #818cf8; }
+.task-expand-btn .arrow { transition: transform .2s; display: inline-block; font-size: 9px; }
+.task-expand-btn .arrow.open { transform: rotate(90deg); }
+
+/* Substep progress mini bar */
+.substep-progress {
+  background: rgba(255,255,255,.08);
+  border-radius: 4px;
+  height: 6px;
+  width: 100px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.substep-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 4px;
+  transition: width .3s ease;
+  min-width: 0%;
+}
+
+/* Substeps container */
+.task-substeps {
+  width: 100%;
+  margin-top: 8px;
+  padding-left: 30px;
+  overflow: hidden;
+  transition: max-height .3s ease, opacity .3s ease;
+}
+.task-substeps.collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0;
+}
+.task-substeps.expanded {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+/* Substep row */
+.substep {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  border-left: 2px solid var(--border);
+  transition: background .2s;
+}
+.substep:hover { background: rgba(255,255,255,.02); border-left-color: var(--accent); }
+.substep.done { opacity: .6; }
+.substep.done .substep-text { text-decoration: line-through; }
+
+.substep-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all .2s;
+  font-size: 11px;
+}
+.substep-checkbox:hover { border-color: var(--green); }
+.substep-checkbox.checked { background: var(--green); border-color: var(--green); color: #fff; }
+
+.substep-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  min-width: 0;
+}
+.substep-text:focus { outline: none; background: rgba(255,255,255,.05); border-radius: 4px; padding: 2px 6px; margin: -2px -6px; color: var(--text); }
+.substep-text code {
+  background: rgba(99,102,241,.15);
+  color: #a5b4fc;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+}
+.substep-text a { color: var(--accent); text-decoration: none; }
+.substep-text a:hover { text-decoration: underline; }
+
+.substep-delete {
+  color: var(--text-dim);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s;
+  background: none;
+  border: none;
+  font-size: 13px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.substep:hover .substep-delete { opacity: 1; }
+.substep-delete:hover { color: var(--red); }
+
+.substep-add-row {
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  margin-top: 4px;
+}
+.substep-add-input {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.substep-add-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.substep-add-input::placeholder { color: rgba(255,255,255,.2); }
+
+/* Add task */
+.add-task-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-top: 4px;
+}
+.add-task-input {
+  flex: 1;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+}
+.add-task-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.add-task-input::placeholder { color: var(--text-dim); }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(4px);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0,0,0,.4);
+  animation: modalIn .2s ease-out;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h3 { margin-bottom: 16px; }
+.modal textarea {
+  width: 100%;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  min-height: 200px;
+  outline: none;
+  resize: vertical;
+}
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+
+/* Filter pills */
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  transition: all .2s;
+}
+.pill:hover, .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 8px var(--accent-glow); }
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Time badge */
+.task-time {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255,255,255,.06);
+  color: var(--text-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Search bar */
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-input {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px 6px 30px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  width: 180px;
+  transition: border-color .2s, width .3s;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); width: 240px; }
+.search-input::placeholder { color: var(--text-dim); }
+.search-icon {
+  position: absolute;
+  left: 9px;
+  color: var(--text-dim);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 2.5s ease-in forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; }
+}
+
+/* Day complete glow */
+.day-card.all-done { border-color: var(--green); box-shadow: 0 0 20px rgba(34,197,94,.15); }
+.day-card.all-done .day-badge { background: var(--green); }
+
+/* Highlight search match */
+.task.search-hidden, .day-card.search-hidden { display: none !important; }
+mark.search-hl { background: rgba(234,179,8,.35); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+/* Project bar */
+.project-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 32px;
+  background: rgba(15,17,23,.95);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.project-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all .2s;
+  font-family: inherit;
+}
+.project-tab:hover { background: var(--card); color: var(--text); }
+.project-tab.active { background: var(--card); border-color: var(--accent); color: var(--text); box-shadow: 0 0 8px var(--accent-glow); }
+.project-tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.project-tab-pct { font-size: 11px; color: var(--text-dim); margin-left: 2px; opacity: .7; }
+.project-add-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all .2s;
+  font-family: inherit;
+}
+.project-add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+/* Project context menu */
+.project-context-menu {
+  position: fixed;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 250;
+  min-width: 160px;
+  display: none;
+}
+.project-context-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+.project-context-option:hover { background: var(--card-hover); }
+.project-context-option.danger { color: var(--red); }
+
+/* Color picker */
+.color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-swatch {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: all .2s;
+}
+.color-swatch:hover, .color-swatch.selected { border-color: #fff; transform: scale(1.15); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header, .main { padding: 12px 16px; }
+  .header-stats { gap: 8px; }
+  .stat-box { min-width: 90px; padding: 6px 10px; }
+  .stat-value { font-size: 18px; }
+  .day-progress-mini { width: 80px; }
+  .task-substeps { padding-left: 16px; }
+  .search-input { width: 140px; }
+  .search-input:focus { width: 180px; }
+  .project-bar { padding: 6px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 id="projectTitle">Loading...</h1>
+  <div class="header-sub" id="projectSub"></div>
+  <div class="header-stats">
+    <div class="stat-box">
+      <div class="stat-label">Overall Progress</div>
+      <div class="stat-value" id="totalPercent">0%</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Tasks Done</div>
+      <div class="stat-value green" id="totalDone">0/0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Current Day</div>
+      <div class="stat-value" id="currentDay">1</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Start Date</div>
+      <div class="stat-value" style="font-size:15px" id="startDate">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Done Today</div>
+      <div class="stat-value green" id="doneToday">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Time Left</div>
+      <div class="stat-value" style="font-size:15px" id="timeLeft">—</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="totalProgress" style="width:0%"></div>
+  </div>
+  <div class="controls">
+    <div class="filter-pills">
+      <button class="pill active" data-filter="all">All</button>
+      <button class="pill" data-filter="pending">Not started</button>
+      <button class="pill" data-filter="in-progress">In progress</button>
+      <button class="pill" data-filter="completed">Done</button>
+      <button class="pill" data-filter="cancelled">Cancelled</button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search tasks..." oninput="onSearch(this.value)">
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn" onclick="expandAll()">Expand all</button>
+    <button class="btn" onclick="collapseAll()">Collapse all</button>
+    <button class="btn" onclick="exportJSON()">Export JSON</button>
+    <button class="btn" onclick="importJSON()">Import JSON</button>
+    <button class="btn danger" onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<div class="project-bar" id="projectBar"></div>
+
+<div class="main" id="main"></div>
+
+<!-- Project context menu (hidden) -->
+<div class="project-context-menu" id="projectContextMenu">
+  <div class="project-context-option" onclick="renameProjectPrompt()">&#9998; Rename</div>
+  <div class="project-context-option" onclick="editProjectDescPrompt()">&#128196; Description</div>
+  <div class="project-context-option" onclick="duplicateProject()">&#128203; Duplicate</div>
+  <div class="project-context-option" onclick="changeColorPrompt()">&#127912; Color</div>
+  <div class="project-context-option danger" onclick="deleteProject()">&#128465; Delete</div>
+</div>
+
+<!-- Status menu (hidden) -->
+<div class="task-status-menu" id="statusMenu" style="display:none">
+  <div class="task-status-option" data-status="pending" onclick="setStatus('pending')">&#11036; Not started</div>
+  <div class="task-status-option" data-status="in-progress" onclick="setStatus('in-progress')">&#128260; In progress</div>
+  <div class="task-status-option" data-status="completed" onclick="setStatus('completed')">&#9989; Done</div>
+  <div class="task-status-option" data-status="cancelled" onclick="setStatus('cancelled')">&#10060; Cancelled</div>
+</div>
+
+<!-- Import modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3>Import JSON</h3>
+    <textarea id="importArea" placeholder="Paste exported JSON here..."></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeImport()">Cancel</button>
+      <button class="btn active" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Project modal -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal">
+    <h3>New Project</h3>
+    <input id="newProjName" type="text" placeholder="Project name..." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;font-family:inherit;margin-bottom:12px;outline:none;">
+    <input id="newProjDesc" type="text" placeholder="Description (optional)..." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;margin-bottom:12px;outline:none;">
+    <div style="margin-bottom:8px;font-size:13px;color:var(--text-dim);">Color:</div>
+    <div class="color-picker" id="newProjColorPicker"></div>
+    <div style="margin-top:16px;">
+      <label style="font-size:13px;color:var(--text-dim);cursor:pointer;">
+        <input type="checkbox" id="newProjTemplate"> Use default plan template (10-Day AI Freelance)
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn active" onclick="doCreateProject()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// SECTION 1: CONSTANTS & CONFIGURATION
+// ============================================
+const STORAGE_KEY_MULTI = 'ai-dashboard-multiproject-v1';
+const OLD_STORAGE_KEY_V2 = 'ai-freelance-dashboard-v2';
+const OLD_STORAGE_KEY_V1 = 'ai-freelance-dashboard-v1';
+
+const PROJECT_COLORS = ['#6366f1','#22c55e','#3b82f6','#f59e0b','#ef4444','#ec4899','#06b6d4','#8b5cf6'];
+
+function genId() {
+  return 'proj_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+const TAG_COLORS = {
+  'GitHub':     { bg: 'rgba(107,114,128,.15)', color: '#9ca3af' },
+  'Fiverr':     { bg: 'rgba(29,191,115,.15)',  color: '#1dbf73' },
+  'PPH':        { bg: 'rgba(47,165,220,.15)',   color: '#2fa5dc' },
+  'Tech':       { bg: 'rgba(139,92,246,.15)',   color: '#8b5cf6' },
+  'Demo':       { bg: 'rgba(245,158,11,.15)',   color: '#f59e0b' },
+  'Video':      { bg: 'rgba(239,68,68,.15)',    color: '#ef4444' },
+  'Portfolio':  { bg: 'rgba(236,72,153,.15)',   color: '#ec4899' },
+  'Research':   { bg: 'rgba(99,102,241,.15)',   color: '#6366f1' },
+  'LinkedIn':   { bg: 'rgba(0,119,181,.15)',    color: '#0077b5' },
+  'Truelancer': { bg: 'rgba(30,58,95,.25)',     color: '#5b8abf' },
+  'Guru':       { bg: 'rgba(46,160,67,.15)',    color: '#2ea043' },
+  'Automation': { bg: 'rgba(6,182,212,.15)',    color: '#06b6d4' },
+  'Launch':     { bg: 'rgba(217,119,6,.15)',    color: '#d97706' },
+  'YouTube':    { bg: 'rgba(255,0,0,.15)',      color: '#ff0000' },
+  'Platforms':  { bg: 'rgba(100,116,139,.15)',  color: '#94a3b8' },
+  'Threads':    { bg: 'rgba(0,0,0,.15)',       color: '#ffffff' },
+  'Scan':       { bg: 'rgba(59,130,246,.15)',   color: '#3b82f6' },
+  'Analyze':    { bg: 'rgba(168,85,247,.15)',   color: '#a855f7' },
+  'Content':    { bg: 'rgba(234,179,8,.15)',    color: '#eab308' },
+  'Growth':     { bg: 'rgba(34,197,94,.15)',    color: '#22c55e' },
+};
+
+const TYPE_BADGES = {
+  'user':   { icon: '\ud83d\udc64', label: 'Ты', bg: 'rgba(245,158,11,.12)', color: '#f59e0b', border: 'rgba(245,158,11,.3)' },
+  'claude': { icon: '\ud83e\udd16', label: 'Claude Code', bg: 'rgba(99,102,241,.12)', color: '#818cf8', border: 'rgba(99,102,241,.3)' },
+  'collab': { icon: '\ud83e\udd1d', label: 'Совместно', bg: 'rgba(34,197,94,.12)', color: '#22c55e', border: 'rgba(34,197,94,.3)' },
+};
+
+const DEFAULT_PLAN = [
+{
+    day: "Day 1",
+    title: "Регистрация + Настройка проектов",
+    tasks: [
+      // === TRACK A: USER ===
+      {
+        text: "Регистрация на PeoplePerHour — ПЕРВЫМ ДЕЛОМ (7-дневный таймер ревью!)",
+        tag: "PPH",
+        type: "user",
+        time: 40,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://www.peopleperhour.com/site/register" target="_blank">peopleperhour.com/site/register</a> → выбери "I want to work as a Freelancer"', done: false },
+          { text: 'Зарегистрируйся через email. Подтверди email по ссылке в письме', done: false },
+          { text: '<b>ВАЖНО:</b> PPH проверяет КАЖДОГО фрилансера вручную. Стандартная проверка = до 7 рабочих дней. Всего 3 попытки — если отклонят 3 раза, аккаунт блокируется. Заполняй ВСЁ идеально!', done: false },
+          { text: 'Headline: <code>AI Chatbot & Voice Agent Developer | GPT-4 · ElevenLabs · Vapi | UK/US/AU Clients</code>', done: false },
+          { text: 'Overview (до 2500 знаков — заполни ВСЁ):<br><code>I specialize in building AI-powered chatbots and voice assistants that automate customer interactions for businesses.\n\nWhat I build:\n• Text chatbots — Smart widgets for your website, 24/7 customer support\n• Voice AI assistants — Human-sounding voice bots (ElevenLabs)\n• Lead qualification bots — AI that captures leads and books appointments\n\nIndustries: Construction, Dental, Real Estate, Professional Services\nTech: OpenAI GPT-4, Claude AI, ElevenLabs Voice, Python, JavaScript, Vercel\n\n10+ years of real business experience means I understand what your customers actually need.</code>', done: false },
+          { text: 'Category: Artificial Intelligence → AI Chatbot Development', done: false },
+          { text: 'Skills (все 15): <code>Artificial Intelligence</code>, <code>Chatbot Development</code>, <code>NLP</code>, <code>OpenAI/GPT-4 API</code>, <code>Python</code>, <code>JavaScript</code>, <code>Dialogflow</code>, <code>Voice AI</code>, <code>Vapi</code>, <code>n8n/Make.com</code>, <code>REST API</code>, <code>WhatsApp Business API</code>, <code>Prompt Engineering</code>, <code>CRM Integration</code>, <code>AI Agent Development</code>', done: false },
+          { text: 'Hourly Rate: £50/hr', done: false },
+          { text: 'Фото: ОБЯЗАТЕЛЬНО реальное фото (PPH отклоняет логотипы/аватары). Мин 150x150px', done: false },
+          { text: 'НЕ включай email/телефон/WhatsApp/Telegram в текст — автоматический отказ!', done: false },
+        ]
+      },
+      {
+        text: "Регистрация на Fiverr — заполнить профиль 'AI Chatbot Developer'",
+        tag: "Fiverr",
+        type: "user",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://www.fiverr.com/join" target="_blank">fiverr.com/join</a> → "Continue with Email"', done: false },
+          { text: '<b>ВАЖНО</b> — Username нельзя изменить! Выбери AI-related: <code>ilshat_ai</code>, <code>aibot_ilshat</code>, <code>voice_ai_pro</code>', done: false },
+          { text: 'Email → пароль → Join → подтверди email код', done: false },
+          { text: 'Аватар → "Become a Seller" → 3 onboarding видео (нельзя пропустить)', done: false },
+          { text: 'Верификация телефона (обязательно) → SMS код', done: false },
+          { text: 'Фото: профессиональное, лицо 60%+ кадра, нейтральный фон. Мин 250x250px', done: false },
+          { text: 'Описание профиля (~600 знаков):<br><code>I build AI chatbots and voice assistants that automate customer support, lead generation, and appointment booking for US, UK, and AU businesses.\n\nTech: OpenAI GPT-4, Claude API, ElevenLabs Voice, Python, JavaScript, Vercel.\n\n10+ years of real business experience (construction). I understand what your customers need.\n\nWhat you get: Custom-trained AI assistant that sounds human, knows your business, and never sleeps.\n\nMessage me to discuss your automation needs.</code>', done: false },
+          { text: 'Skills (15): <code>Chatbot Development</code>, <code>AI Development</code>, <code>Voice AI</code>, <code>NLP</code>, <code>Python</code>, <code>LangChain</code>, <code>OpenAI API</code>, <code>VAPI AI</code>, <code>n8n Automation</code>, <code>Zapier</code>, <code>Dialogflow</code>, <code>WhatsApp Chatbot</code>, <code>API Integration</code>, <code>Node.js</code>, <code>Retell AI</code>', done: false },
+          { text: 'Linked Accounts: привяжи GitHub (<code>ilshatsharapov69-afk</code>)', done: false },
+          { text: 'Установи мобильное приложение Fiverr + включи уведомления. Ответ за <1 час = ключевой фактор ранжирования', done: false },
+        ]
+      },
+      {
+        text: "Регистрация на Truelancer",
+        tag: "Truelancer",
+        type: "user",
+        time: 25,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://www.truelancer.com/signup" target="_blank">truelancer.com/signup</a> → Freelancer → Email', done: false },
+          { text: 'Title: <code>AI Chatbot & Voice Assistant Developer</code>', done: false },
+          { text: 'Overview: AI чатботы и голосовые ассистенты для бизнеса. GPT-4, Claude, ElevenLabs, Python, JS', done: false },
+          { text: 'Skills: <code>AI Chatbot Development</code>, <code>Python</code>, <code>JavaScript</code>, <code>Voice AI</code>, <code>API Development</code>', done: false },
+          { text: 'Rate: $50/hr. Category: IT & Programming → AI', done: false },
+          { text: '<b>ВАЖНО:</b> Free план = $100 макс проект, 10 proposals/мес. Basic ($10/мес) = $500 и 25 proposals', done: false },
+        ]
+      },
+      {
+        text: "Регистрация на Guru.com",
+        tag: "Guru",
+        type: "user",
+        time: 25,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://www.guru.com/d/register" target="_blank">guru.com/d/register</a> → "I want to work as a freelancer"', done: false },
+          { text: 'Tagline: <code>AI Chatbot & Voice Assistant Developer — Custom GPT Bots for Business</code>', done: false },
+          { text: 'Description: AI чатботы, голосовые ассистенты, автоматизация. GPT-4, Claude, ElevenLabs', done: false },
+          { text: 'Category: Programming → AI & ML. Rate: $50/hr', done: false },
+          { text: '<b>Guru.com:</b> 10 free bids/мес — будь избирателен, только $500+ проекты', done: false },
+        ]
+      },
+      {
+        text: "ElevenLabs аккаунт — создать голосового агента Construction",
+        tag: "Tech",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://elevenlabs.io/sign-up" target="_blank">elevenlabs.io/sign-up</a> → зарегистрируйся', done: false },
+          { text: 'Перейди в <a href="https://elevenlabs.io/conversational-ai" target="_blank">Conversational AI</a> → "+ Create Agent"', done: false },
+          { text: 'Agent Name: <code>Construction Assistant Demo</code>', done: false },
+          { text: 'System Prompt: <code>You are a friendly customer support assistant for a construction company. Help with: quotes, scheduling inspections, services (roofing, plumbing, electrical, remodeling), pricing estimates. Be professional but approachable.</code>', done: false },
+          { text: 'Voice: профессиональный American English (Josh или Rachel). LLM: <code>claude-sonnet-4-6</code>', done: false },
+          { text: 'Протестируй через "Try it". Установи агента в "Public" (отключи аутентификацию в Advanced Settings)', done: false },
+          { text: '<b>СКОПИРУЙ agent-id</b> из вкладки Widget — он понадобится Claude Code для интеграции голоса!', done: false },
+          { text: 'Также скопируй API Key: Settings → API Keys → Create', done: false },
+          { text: 'Free tier = 10,000 credits/мес (~10-15 мин голосового разговора)', done: false },
+        ]
+      },
+      {
+        text: "Vercel аккаунт + CLI",
+        tag: "Tech",
+        type: "user",
+        time: 10,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://vercel.com/signup" target="_blank">vercel.com/signup</a> → Sign up with GitHub', done: false },
+          { text: 'В терминале: <code>npm i -g vercel</code> → <code>vercel login</code> → авторизуйся в браузере', done: false },
+        ]
+      },
+      {
+        text: "GitHub профиль — AI Automation Specialist позиционирование",
+        tag: "GitHub",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://github.com/ilshatsharapov69-afk" target="_blank">github.com/ilshatsharapov69-afk</a>', done: false },
+          { text: 'Создай репо с именем <code>ilshatsharapov69-afk</code> (совпадает с username) → отметь "Add a README"', done: false },
+          { text: 'Вставь README:<br><code># Hi, I\'m Ilshat — AI Automation Specialist 🤖\nI build intelligent voice & text chatbots that automate customer support 24/7.\n## What I Do\n- 🗣️ Voice AI Assistants (ElevenLabs + Claude/GPT)\n- 💬 Text Chatbot Widgets for any website\n- ⚡ Business Workflow Automation\n- 🏗️ 10+ years in Construction\n## Tech Stack\nPython | JavaScript | OpenAI API | Claude API | ElevenLabs | Vercel | Node.js</code>', done: false },
+          { text: 'Фото, Bio: <code>AI Automation Specialist | Voice & Text Chatbots for Business</code>', done: false },
+          { text: 'Location: <code>Philippines</code>, Company: <code>Freelance AI Developer</code>', done: false },
+          { text: 'Закрепи лучшие репозитории на странице профиля', done: false },
+        ]
+      },
+      {
+        text: "Описания на 3 существующих репо (English)",
+        tag: "GitHub",
+        type: "user",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<a href="https://github.com/ilshatsharapov69-afk/crm-data-extractor" target="_blank">crm-data-extractor</a> → About: <code>Automated CRM data pipeline — extracts, cleans and syncs business contacts with Google Sheets API. Built with Python.</code> Topics: python, crm, automation, google-sheets-api', done: false },
+          { text: '<a href="https://github.com/ilshatsharapov69-afk/whisper-typing" target="_blank">whisper-typing</a> → About: <code>AI-powered real-time speech-to-text typing assistant with Gemini integration.</code> Topics: speech-to-text, whisper, gemini, ai, python', done: false },
+          { text: '<a href="https://github.com/ilshatsharapov69-afk/cebu-living-map" target="_blank">cebu-living-map</a> → About: <code>Interactive data visualization platform for exploring living costs in Cebu, Philippines.</code> Topics: data-visualization, javascript, maps', done: false },
+        ]
+      },
+      // === TRACK B: CLAUDE CODE ===
+      {
+        text: "🤖 Claude Code: Создать структуру проекта AI-Chatbot-Demo",
+        tag: "Tech",
+        type: "claude",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай проект D:\\AI-Chatbot-Demo\\ с подпапками: construction, dental, realestate, shared, api. Инициализируй git. Создай .gitignore (.env, node_modules/, .vercel/). Создай .env.example с OPENAI_API_KEY=sk-xxx. Создай package.json с именем "ai-chatbot-demo". Создай vercel.json с роутингом /api/* на serverless функции и статикой для нишевых папок.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Исследование конкурентов на Fiverr",
+        tag: "Research",
+        type: "claude",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>/deep-research "Анализ конкурентов AI chatbot гигов на Fiverr 2026: топ-10 гигов, цены, описания, теги, пробелы в рынке. Что продаётся лучше всего? Какие ниши недообслужены?"</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Тест OpenAI API ключа",
+        tag: "Tech",
+        type: "claude",
+        time: 10,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Протестируй OpenAI API ключ. Сделай тестовый вызов gpt-4o-mini. Проверь работу стриминга. Подтверди что ключ рабочий.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Установить ElevenLabs MCP сервер",
+        tag: "Tech",
+        type: "claude",
+        time: 10,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Добавь ElevenLabs MCP сервер в .mcp.json проекта. Команда: uvx elevenlabs-mcp с переменной ELEVENLABS_API_KEY. Проверь что подключается.</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 2",
+    title: "Construction Demo — полная сборка",
+    tasks: [
+      // === TRACK A: USER ===
+      {
+        text: "Обновить LinkedIn профиль — AI Automation Specialist",
+        tag: "LinkedIn",
+        type: "user",
+        time: 35,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на <a href="https://www.linkedin.com/in/me/" target="_blank">linkedin.com/in/me</a> → редактировать', done: false },
+          { text: 'Headline: <code>AI Automation Specialist | I Build Voice & Text Chatbots That Handle Customer Support 24/7 | GPT-4 & ElevenLabs</code>', done: false },
+          { text: 'About: описание услуг — text chatbots, voice AI, lead qualification, workflow automation. Ниши: Construction, Dental, Real Estate. CTA: "DM me for a free demo"', done: false },
+          { text: 'Experience: добавь "AI Automation Specialist — Freelance" (текущая позиция)', done: false },
+          { text: 'Skills: Artificial Intelligence, Chatbot Development, Python, JavaScript, GPT-4, Voice AI', done: false },
+          { text: 'Включи "Providing services" → выбери AI, Chatbot, Automation', done: false },
+          { text: 'Создай баннер в Canva: "AI Chatbots for Business | Custom Voice & Text Assistants"', done: false },
+        ]
+      },
+      {
+        text: "Передать ElevenLabs agent-id в Claude Code",
+        tag: "Tech",
+        type: "collab",
+        time: 5,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Скопируй agent-id из ElevenLabs (со вчера) и вставь в промпт Claude Code для голосовой интеграции', done: false },
+        ]
+      },
+      {
+        text: "Проверить Construction демо + деплой на Vercel",
+        tag: "Demo",
+        type: "collab",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Открой D:\\AI-Chatbot-Demo\\construction\\index.html в браузере — проверь дизайн', done: false },
+          { text: 'Проверь на телефоне (или Chrome DevTools → toggle device)', done: false },
+          { text: 'В терминале: <code>cd D:\\AI-Chatbot-Demo && vercel env add OPENAI_API_KEY</code> → вставь ключ', done: false },
+          { text: '<code>vercel --prod</code> → скопируй URL', done: false },
+          { text: 'Протестируй чат на live URL: "How much does a roof replacement cost?"', done: false },
+          { text: 'Протестируй голосовой режим (если agent-id интегрирован)', done: false },
+        ]
+      },
+      // === TRACK B: CLAUDE CODE ===
+      {
+        text: "🤖 Claude Code: Landing page для Construction",
+        tag: "Demo",
+        type: "claude",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай D:\\AI-Chatbot-Demo\\construction\\index.html для "BuildRight Construction Co." — US general contractor. Hero section "Your Trusted Construction Partner Since 2005", services grid (Roofing, Plumbing, Electrical, Remodeling, New Construction, Inspections), 3 реалистичных отзыва, "Why Choose Us", контакты, плавающий чат-баббл внизу справа. Тёмно-синий + оранжевый. Mobile responsive. Один файл HTML без зависимостей. Профессиональный дизайн для портфолио.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Knowledge base для Construction",
+        tag: "Demo",
+        type: "claude",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай D:\\AI-Chatbot-Demo\\construction\\knowledge.md — полная база знаний строительной компании. Услуги с ценами, материалы, сроки проектов (kitchen remodel 3-6 недель, bathroom 2-4, roof 1-3 дня), лицензии, зона обслуживания, часы работы, гарантии. 20+ FAQ вопросов с ответами. Это training data для чатбота.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Чатбот виджет + API бэкенд",
+        tag: "Demo",
+        type: "claude",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай: 1) Vercel serverless function D:\\AI-Chatbot-Demo\\api\\chat.js — принимает POST {message, history, niche}, использует OpenAI gpt-4o-mini с system prompt из knowledge.md нужной ниши, стримит ответ, CORS headers. 2) Переиспользуемый чат-виджет — плавающий синий баббл внизу справа, окно чата с историей сообщений, typing indicator, авто-скролл, плавные анимации. Виджет делает POST на /api/chat с niche="construction". Добавь бейдж "Powered by AI". Обработка ошибок API.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Голосовой режим ElevenLabs",
+        tag: "Demo",
+        type: "claude",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Добавь toggle "Switch to Voice Mode 🎤" в чат-виджет construction демо. При переключении встрой ElevenLabs Conversational AI widget с agent-id="[ВСТАВЬ_AGENT_ID]". Добавь script tag elevenlabs-convai. Также добавь кнопку "Talk to our AI" на лендинге, которая открывает голосовой виджет в модальном окне.</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 3",
+    title: "Dental + Real Estate + Portfolio Hub",
+    tasks: [
+      // === TRACK A: USER ===
+      {
+        text: "Создать ElevenLabs агентов для Dental и Real Estate",
+        tag: "Tech",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'В ElevenLabs → Conversational AI → "+ Create Agent"', done: false },
+          { text: 'Agent "Dental Assistant Demo": дружелюбный, профессиональный, медицинская терминология. System prompt: помощь с записью, процедурами, страховками, FAQ', done: false },
+          { text: 'Agent "Real Estate Assistant Demo": знающий, энтузиастичный. System prompt: поиск недвижимости, просмотры, ипотека, FAQ', done: false },
+          { text: '<b>Скопируй оба agent-id</b> для Claude Code', done: false },
+        ]
+      },
+      {
+        text: "Тест всех 3 демо + финальный деплой",
+        tag: "Demo",
+        type: "collab",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Открой каждое демо: /construction/, /dental/, /realestate/', done: false },
+          { text: 'Протестируй текстовый чат с нишевыми вопросами для каждого', done: false },
+          { text: 'Протестируй голосовой режим', done: false },
+          { text: 'Проверь мобильную версию', done: false },
+          { text: '<code>cd D:\\AI-Chatbot-Demo && vercel --prod</code>', done: false },
+          { text: 'Сохрани live URL — он будет везде: Fiverr, PPH, LinkedIn, proposals', done: false },
+        ]
+      },
+      // === TRACK B: CLAUDE CODE ===
+      {
+        text: "🤖 Claude Code: Dental landing page + knowledge base",
+        tag: "Demo",
+        type: "claude",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай D:\\AI-Chatbot-Demo\\dental\\index.html для "Bright Smile Dental" — US семейная стоматология. Hero "Your Family\'s Smile, Our Priority". Услуги: General, Cosmetic, Orthodontics, Emergency, Pediatric, Implants. Страховки: Aetna, Cigna, Delta Dental, MetLife. Команда: Dr. Sarah Johnson, Dr. Michael Chen. 3 отзыва. CTA записи. Чат-баббл. Белый + голубой. Медицинский стиль. Один файл.\n\nТакже создай D:\\AI-Chatbot-Demo\\dental\\knowledge.md — услуги с ценами (cleaning $100-200, filling $150-400, crown $800-1500, implant $3000-5000), страховки, часы, FAQ 20+.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Real Estate landing page + knowledge base",
+        tag: "Demo",
+        type: "claude",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай D:\\AI-Chatbot-Demo\\realestate\\index.html для "Horizon Real Estate Group". Hero с поисковой строкой (UI only). 6 реалистичных листингов с ценами. Команда агентов. Рыночная статистика. Гиды по районам. Отзывы. Чат-баббл. Navy + gold. Люксовый стиль. Один файл.\n\nТакже создай knowledge.md — типы недвижимости, цены по районам (Downtown $400K-800K, Suburbs $250K-500K), просмотры 7 дней/нед, процесс покупки, ипотека, FAQ 20+. Включи вопросы квалификации лидов.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Обновить API для всех ниш",
+        tag: "Demo",
+        type: "claude",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Обнови D:\\AI-Chatbot-Demo\\api\\chat.js — добавь параметр "niche" в запросе. Загружай правильный knowledge.md по значению niche ("construction", "dental", "realestate"). Обнови чат-виджеты во всех лендингах чтобы передавали correct niche.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Portfolio hub + case studies",
+        tag: "Demo",
+        type: "claude",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Создай D:\\AI-Chatbot-Demo\\index.html — портфолио AI chatbot разработчика. "AI-Powered Chatbots for Your Business". 3 карточки ниш: Construction (blue/orange), Dental (white/teal), Real Estate (navy/gold). Каждая: иконка, описание, кнопка "Try Live Demo" → /construction/, /dental/, /realestate/. Секция "How It Works" (3 шага). Pricing (3 тира как на Fiverr). Контакт CTA. Тёмный профессиональный дизайн.\n\nТакже создай case-studies.md с 3 кейсами для copy-paste на платформы: Construction (90% вопросов instantly, 3x leads), Dental (70% меньше рутинных звонков), Real Estate (instant response, 2x viewings).</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Mobile polish всех страниц",
+        tag: "Demo",
+        type: "claude",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт для Claude Code:</b><br><code>Проверь и исправь все страницы в D:\\AI-Chatbot-Demo на ширине 375px. Touch targets минимум 44px, чат-виджет удобен на мобильном, нет горизонтального скролла, текст читаем без зума. Исправь все проблемы.</code>', done: false },
+        ]
+      },
+    ]
+  },,
+{
+    day: "Day 4",
+    title: "Видео + Скриншоты + Начало Scraper",
+    tasks: [
+      {
+        text: "Установить OBS Studio для записи",
+        tag: "Video",
+        type: "user",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Скачай <a href="https://obsproject.com/download" target="_blank">OBS Studio</a> → установи', done: false },
+          { text: 'Settings → Output → Recording Format: <code>MKV</code> (не MP4 — MKV crash-safe)', done: false },
+          { text: 'Encoder: <code>NVENC H.264</code> (Nvidia) или <code>x264</code> (CPU). Bitrate: 6000-10000 kbps', done: false },
+          { text: 'Video: 1920x1080, 60fps, Lanczos downscale', done: false },
+          { text: 'Sources → + Display Capture → выбери монитор', done: false },
+        ]
+      },
+      {
+        text: "Записать демо видео (3 мин) + 3 коротких клипа для Fiverr",
+        tag: "Video",
+        type: "user",
+        time: 75,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Скрипт видео (3 мин):<br>0:00 HOOK: "What if your website could answer every customer question — even at 3 AM?"<br>0:15 Problem: "Most businesses lose leads after hours"<br>0:30 Solution: "I built an AI chatbot that handles this 24/7"<br>0:45 LIVE DEMO: текстовый чат "How much does a roof replacement cost?"<br>1:10 Follow-up: "Can I schedule an inspection?"<br>1:35 VOICE MODE демо<br>2:00 Dental демо кратко<br>2:15 Real Estate кратко<br>2:30 Benefits recap<br>2:45 CTA: "Order on Fiverr"', done: false },
+          { text: 'Прорепетируй 2-3 раза перед записью', done: false },
+          { text: 'Запиши. Ошибки — пауза и переделай (обрежешь при монтаже)', done: false },
+          { text: 'Также запиши 3 коротких клипа (60-75 сек каждый) для Fiverr — уникальный на каждый гиг', done: false },
+        ]
+      },
+      {
+        text: "Монтаж видео",
+        tag: "Video",
+        type: "user",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Используй CapCut (бесплатный) или DaVinci Resolve', done: false },
+          { text: 'Ускорь скучные части 2-4x. Добавь субтитры', done: false },
+          { text: 'Конвертируй MKV → MP4: OBS → File → Remux Recordings (15 секунд, без потерь)', done: false },
+          { text: 'Fiverr требования: MP4, макс 50 MB, 16:9, мин 1280x720, 20-75 секунд', done: false },
+        ]
+      },
+      {
+        text: "Загрузить видео на YouTube (unlisted)",
+        tag: "YouTube",
+        type: "user",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<a href="https://studio.youtube.com" target="_blank">studio.youtube.com</a> → Create → Upload video', done: false },
+          { text: 'Title: <code>AI Chatbot Demo — Text & Voice Customer Support for Business Websites</code>', done: false },
+          { text: 'Visibility: <b>Unlisted</b> (виден по ссылке, не в поиске)', done: false },
+          { text: 'Thumbnail: скриншот чатбота в действии с текстом "AI Chatbot Demo"', done: false },
+          { text: '<b>Скопируй URL</b> — пригодится для Fiverr гигов и proposals', done: false },
+        ]
+      },
+      {
+        text: "Скриншоты + изображения для Fiverr в Canva",
+        tag: "Portfolio",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Открой каждое демо в Chrome 1920x1080', done: false },
+          { text: 'Full-page screenshot: F12 → Ctrl+Shift+P → "Capture full size screenshot"', done: false },
+          { text: 'Также скриншот чат-виджета с перепиской и голосового режима', done: false },
+          { text: 'В <a href="https://www.canva.com" target="_blank">Canva</a> создай композиты 1280x769px с текстом: "24/7 AI Support", "Text + Voice", "Custom Trained"', done: false },
+          { text: 'Сохрани 9-12 PNG изображений (по 3 на каждый гиг)', done: false },
+        ]
+      },
+      {
+        text: "Создать Telegram бота для скрапера",
+        tag: "Automation",
+        type: "user",
+        time: 10,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Открой <a href="https://t.me/BotFather" target="_blank">@BotFather</a> → /newbot → назови "FreelanceJobAlert"', done: false },
+          { text: '<b>Скопируй API token</b>', done: false },
+          { text: 'Напиши <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> → <b>скопируй chat ID</b>', done: false },
+        ]
+      },
+      // === CLAUDE CODE TRACK ===
+      {
+        text: "🤖 Claude Code: Создать проект Freelance-Scraper",
+        tag: "Automation",
+        type: "claude",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай проект D:\\Freelance-Scraper\\. npm init -y. Установи: puppeteer, cheerio, node-cron, dotenv, node-telegram-bot-api, @anthropic-ai/sdk. Создай папки: scrapers/, utils/, templates/, data/. Создай .env.example с TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, OPENAI_API_KEY, ANTHROPIC_API_KEY. Создай .gitignore (.env, node_modules/, data/). git init.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Скрапер PeoplePerHour",
+        tag: "Automation",
+        type: "claude",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай D:\\Freelance-Scraper\\scrapers\\pph.js — Puppeteer скрапер для peopleperhour.com/freelance-jobs. Keywords: "chatbot", "AI", "automation", "GPT", "customer support bot", "voice assistant". Извлекай: title, description, budget, posted date, client info, URL. Сохраняй в data/pph-jobs.json. Дедупликация. Export scrapePPH() возвращающий только новые вакансии.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Скрапер Truelancer + Guru",
+        tag: "Automation",
+        type: "claude",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай D:\\Freelance-Scraper\\scrapers\\truelancer.js — скрапер для truelancer.com/freelance-projects. Те же keywords что и PPH. Export scrapeTruelancer().\n\nТакже создай scrapers/guru.js — для guru.com/d/jobs. Фильтр бюджет $500+. Export scrapeGuru().</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Scoring engine для вакансий",
+        tag: "Automation",
+        type: "claude",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай D:\\Freelance-Scraper\\utils\\scorer.js — оценка каждой вакансии 1-10: бюджет ($500+ = выше), сила match по keywords ("AI chatbot" exact = high), история клиента (verified = бонус), конкуренция (меньше bids = выше), совпадение с нишей (construction/dental/realestate = бонус). Возвращай score + цвет: 🟢 8-10 (bid сразу), 🟡 5-7 (подумать), 🔴 1-4 (пропустить).</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 5",
+    title: "Запуск Fiverr гигов",
+    tasks: [
+      {
+        text: "Fiverr Gig 1: AI Chatbot ($149/$349/$699)",
+        tag: "Fiverr",
+        type: "user",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Selling → Gigs → Create a New Gig', done: false },
+          { text: 'Title (первые 40 знаков важнее всего): <code>I will build an AI chatbot for customer support and lead generation</code>', done: false },
+          { text: 'Category: Programming & Tech → Chatbots → AI Chatbot Development', done: false },
+          { text: '5 тегов: <code>ai chatbot development</code>, <code>customer support bot</code>, <code>chatbot automation</code>, <code>openai chatbot</code>, <code>whatsapp chatbot</code>', done: false },
+          { text: 'Basic $149: <code>Starter AI Chatbot</code> — 1 платформа, 10 intents, FAQ, 5 дней, 3 ревизии', done: false },
+          { text: 'Standard $349: <code>Business Chatbot</code> — 3 платформы, 30 intents, CRM, 10 дней, 5 ревизий', done: false },
+          { text: 'Premium $699: <code>Enterprise AI System</code> — text+voice, unlimited, 21 день', done: false },
+          { text: 'Описание (1200 знаков — используй ВСЁ):<br><code>Stop losing customers to unanswered messages. I\'ll build an AI chatbot that handles customer inquiries on your website 24/7.\n\n🤖 What You Get:\n✅ AI chatbot trained on YOUR business data\n✅ Instant responses — no wait times\n✅ Text chat + Voice mode (Premium)\n✅ Works on ANY website\n✅ Easy install — paste 1 line of code\n\n🏗️ Industries: Construction, Dental, Real Estate, Professional Services\n\n💡 Powered by GPT-4, Claude, ElevenLabs Voice\n\n📊 Results: 90% instant answers, 3x more leads, $0 staffing cost\n\n▶️ Watch my demo video above!</code>', done: false },
+          { text: 'FAQ: 3-5 вопросов (что нужно от покупателя, как установить, можно ли записывать)', done: false },
+          { text: 'Загрузи 3 изображения 1280x769px + видео 60-75 сек', done: false },
+          { text: 'Requirements: business description, FAQs, brand colors, website URL', done: false },
+          { text: 'Publish Gig', done: false },
+        ]
+      },
+      {
+        text: "Fiverr Gig 2: Voice AI ($300/$600/$1200)",
+        tag: "Fiverr",
+        type: "user",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Title: <code>I will create a voice AI assistant for your website</code>', done: false },
+          { text: 'Tags: <code>voice assistant</code>, <code>ai voice bot</code>, <code>voice chatbot</code>, <code>elevenlabs</code>, <code>ai customer support</code>', done: false },
+          { text: 'Basic $300 / Standard $600 / Premium $1200 — акцент на ГОЛОС как уникальное преимущество', done: false },
+          { text: 'Другие скриншоты + другой видео-клип (уникальные на каждый гиг!)', done: false },
+          { text: 'Publish Gig', done: false },
+        ]
+      },
+      {
+        text: "Fiverr Gig 3: Business Automation ($100/$300/$600)",
+        tag: "Fiverr",
+        type: "user",
+        time: 40,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Title: <code>I will automate your business workflows with AI</code>', done: false },
+          { text: 'Tags: <code>ai automation</code>, <code>business automation</code>, <code>workflow automation</code>, <code>gpt integration</code>, <code>ai integration</code>', done: false },
+          { text: 'Basic $100 / Standard $300 / Premium $600 — фокус на ROI и экономию времени', done: false },
+          { text: 'Publish Gig', done: false },
+        ]
+      },
+      {
+        text: "SEO оптимизация всех гигов + Buyer Requests",
+        tag: "Fiverr",
+        type: "user",
+        time: 40,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Проверь все 3 гига: у каждого ровно 5 тегов, разные но связанные', done: false },
+          { text: 'Keywords в: title, первая строка описания, FAQ ответы', done: false },
+          { text: 'Включи "Get Briefs" в Fiverr Settings', done: false },
+          { text: 'Проверь Buyer Requests — ответь на релевантные с demo-ссылкой', done: false },
+          { text: 'YouTube ссылку добавь в описание каждого гига', done: false },
+        ]
+      },
+      // === CLAUDE CODE TRACK ===
+      {
+        text: "🤖 Claude Code: Telegram нотификации + главный раннер",
+        tag: "Automation",
+        type: "claude",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай D:\\Freelance-Scraper\\utils\\notify.js — node-telegram-bot-api. Форматированные сообщения: эмодзи цвет (🟢/🟡/🔴), title, budget, platform, score, link. Inline кнопки [Bid] [Skip].\n\nТакже создай index.js — главный раннер. При старте: запуск всех 3 скраперов, scoring, Telegram нотификации для зелёных и жёлтых. node-cron каждые 30 мин. data/history.json для дедупликации. Graceful error handling — падение одного скрапера не ломает остальные.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Шаблоны proposals + AI генератор",
+        tag: "Automation",
+        type: "claude",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Создай D:\\Freelance-Scraper\\templates\\ — base-proposal.md, construction.md, dental.md, realestate.md, generic.md. Переменные: {client_name}, {personalized_opening}, {industry}, {demo_url}, {specific_approach}, {deliverables}, {timeline}, {portfolio_url}.\n\nТакже создай utils/proposal-generator.js — Anthropic SDK, claude-sonnet. Принимает job object (title, description, budget, platform). Анализирует вакансию → определяет нишу → выбирает шаблон → авто-подставляет правильную демо-ссылку (construction/dental/realestate/main) → генерирует персонализированный proposal.</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 6",
+    title: "Тестирование Scraper + Первые Proposals",
+    tasks: [
+      {
+        text: "Настроить .env для Scraper + тест end-to-end",
+        tag: "Automation",
+        type: "collab",
+        time: 40,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Заполни D:\\Freelance-Scraper\\.env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, OPENAI_API_KEY, ANTHROPIC_API_KEY', done: false },
+          { text: 'Запусти: <code>cd D:\\Freelance-Scraper && node index.js</code>', done: false },
+          { text: 'Проверь Telegram — должны прийти нотификации о вакансиях', done: false },
+          { text: 'Протестируй /bid команду — проверь качество сгенерированного proposal', done: false },
+          { text: 'Если баги — скажи Claude Code исправить', done: false },
+        ]
+      },
+      {
+        text: "Отправить 5 Truelancer bids (текст от Claude Code)",
+        tag: "Truelancer",
+        type: "collab",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<a href="https://www.truelancer.com/freelance-projects" target="_blank">Truelancer Jobs</a> → IT & Programming → "chatbot", "AI", "automation"', done: false },
+          { text: 'Для каждой вакансии попроси Claude Code сгенерировать proposal', done: false },
+          { text: 'Вставь текст на платформу. Включи demo-ссылку в каждый bid', done: false },
+          { text: 'Цены конкурентные — Truelancer обычно ниже бюджеты', done: false },
+        ]
+      },
+      {
+        text: "Отправить 3 Guru bids ($500+)",
+        tag: "Guru",
+        type: "collab",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<a href="https://www.guru.com/d/jobs" target="_blank">Guru Jobs</a> → $500+ бюджет, AI/chatbot/automation', done: false },
+          { text: 'Будь ИЗБИРАТЕЛЕН — только 10 free quotes/мес', done: false },
+          { text: 'Claude Code напишет proposals → вставь на платформу', done: false },
+        ]
+      },
+      {
+        text: "Fiverr Buyer Requests (ежедневно!)",
+        tag: "Fiverr",
+        type: "user",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Проверяй Buyer Requests КАЖДЫЙ день утром и вечером', done: false },
+          { text: 'Отвечай на ВСЕ релевантные — персонализировано, с demo-ссылкой', done: false },
+        ]
+      },
+      {
+        text: "LinkedIn outreach — первая партия",
+        tag: "LinkedIn",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Поиск: "owner" OR "founder" + "construction" OR "dental" OR "real estate" + USA', done: false },
+          { text: '5-10 connection requests с заметкой (300 знаков макс):<br><code>Hi [Name], I help [industry] businesses automate customer support with AI chatbots. Happy to share a free demo — it handles inquiries 24/7. Would love to connect!</code>', done: false },
+          { text: 'Лимит: 5-10 запросов/день (не превышай лимиты LinkedIn)', done: false },
+        ]
+      },
+      {
+        text: "Scraper в автозагрузку Windows",
+        tag: "Automation",
+        type: "user",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Windows Task Scheduler → Create Task → "Freelance Scraper"', done: false },
+          { text: 'Trigger: At log on. Action: Start program: <code>node</code>, Arguments: <code>D:\\Freelance-Scraper\\index.js</code>', done: false },
+        ]
+      },
+    ]
+  },,
+{
+    day: "Day 7",
+    title: "PPH Запуск + Вторая волна Proposals",
+    tasks: [
+      {
+        text: "Проверить статус PPH (7 дней с регистрации)",
+        tag: "PPH",
+        type: "user",
+        time: 5,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Зайди на PPH — проверь одобрен ли профиль', done: false },
+          { text: 'Если одобрен → создавай Hourlies (ниже)', done: false },
+          { text: 'Если отклонён → прочитай feedback, исправь, перезайди (ещё 2 попытки)', done: false },
+          { text: 'Если ещё на ревью — подожди, двигайся к другим задачам', done: false },
+        ]
+      },
+      {
+        text: "PPH Hourlie 1: AI Chatbot (£149/£349/£699)",
+        tag: "PPH",
+        type: "user",
+        time: 40,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Dashboard → Services → Create Offer', done: false },
+          { text: 'Title: <code>I will build a custom AI chatbot for your website using GPT-4</code>', done: false },
+          { text: 'Short description (150 знаков): <code>Smart AI chatbot trained on your business data. Answers customer questions 24/7, captures leads, books appointments.</code>', done: false },
+          { text: '3 тира: Starter £149 / Standard £349 / Premium £699', done: false },
+          { text: 'Полное описание с demo-ссылкой. Category: AI Chatbot Development', done: false },
+          { text: 'Delivery 5 дней. Add-ons: express £50, extra integration £100', done: false },
+          { text: 'Уникальное изображение 1280x720px. Submit для модерации', done: false },
+        ]
+      },
+      {
+        text: "PPH Hourlie 2: Voice AI (£500)",
+        tag: "PPH",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Title: <code>I will integrate a voice AI assistant into your website</code>', done: false },
+          { text: 'Price: £500. Акцент на голос как преимущество', done: false },
+          { text: 'Описание + demo-ссылка + уникальное изображение', done: false },
+        ]
+      },
+      {
+        text: "PPH Hourlie 3: Automation (£150)",
+        tag: "PPH",
+        type: "user",
+        time: 25,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Title: <code>I will automate your business workflows with AI</code>', done: false },
+          { text: 'Price: £150. Адаптировано для UK рынка', done: false },
+        ]
+      },
+      {
+        text: "Отправить 5 PPH proposals",
+        tag: "PPH",
+        type: "collab",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<a href="https://www.peopleperhour.com/freelance-jobs" target="_blank">PPH Jobs Board</a> → AI, chatbot, automation', done: false },
+          { text: 'Настрой saved searches с email уведомлениями', done: false },
+          { text: '<b>Первый bid на любой проект = БЕСПЛАТНО</b> (не тратит кредит)', done: false },
+          { text: 'Попроси Claude Code написать proposals для каждой вакансии', done: false },
+          { text: 'Вставь на платформу. Сохрани оставшиеся 10 proposals на месяц', done: false },
+        ]
+      },
+      {
+        text: "Ежедневная проверка Fiverr + LinkedIn",
+        tag: "Launch",
+        type: "user",
+        time: 35,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Fiverr: messages + Buyer Requests', done: false },
+          { text: 'LinkedIn: 5-10 connections + follow-up с принявшими', done: false },
+          { text: 'Telegram: ночные алерты от скрапера, approve/skip', done: false },
+        ]
+      },
+      // === CLAUDE CODE ===
+      {
+        text: "🤖 Claude Code: Telegram approval flow",
+        tag: "Automation",
+        type: "claude",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Обнови D:\\Freelance-Scraper — добавь Telegram команды: /approve [id] (копирует proposal в clipboard + открывает URL вакансии), /edit [id] (показывает текст для редактирования), /skip [id] (пропустить), /queue (показать ожидающие proposals). Когда юзер отвечает /bid на алерт — генерируй proposal через proposal-generator и отправь на ревью.</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 8",
+    title: "YouTube туториал + Полная рутина",
+    tasks: [
+      {
+        text: "Утренняя рутина (делай КАЖДЫЙ день!)",
+        tag: "Launch",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Telegram: алерты от скрапера за ночь → approve/skip proposals', done: false },
+          { text: 'Fiverr: сообщения + Buyer Requests', done: false },
+          { text: 'PPH: сообщения + новые проекты', done: false },
+          { text: 'Truelancer + Guru: сообщения', done: false },
+        ]
+      },
+      {
+        text: "Записать YouTube туториал (PUBLIC)",
+        tag: "YouTube",
+        type: "user",
+        time: 120,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Тема: "I Built an AI Chatbot for a Construction Company in 2 Hours (Live Demo)"', done: false },
+          { text: 'Покажи весь процесс: от пустой папки до работающего чатбота на сайте', done: false },
+          { text: 'Записать 10-15 мин, ускорить скучные части в монтаже', done: false },
+          { text: 'Загрузить как <b>PUBLIC</b> — это для маркетинга', done: false },
+          { text: 'SEO: Title с keywords, описание с ссылками на Fiverr гиги и демо', done: false },
+          { text: 'Tags: AI chatbot, build chatbot, GPT, voice assistant, ElevenLabs, business AI', done: false },
+        ]
+      },
+      {
+        text: "LinkedIn outreach",
+        tag: "LinkedIn",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '5-10 connections + follow-up с принявшими предыдущие', done: false },
+          { text: 'Follow-up шаблон:<br><code>Thanks for connecting, [Name]! Here\'s a live demo of an AI chatbot for [industry]: [demo-url]. Handles questions, books appointments, captures leads 24/7. Would this be useful for [company]?</code>', done: false },
+        ]
+      },
+      {
+        text: "Оставшиеся bids на Truelancer + Guru",
+        tag: "Platforms",
+        type: "collab",
+        time: 50,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Truelancer: используй оставшиеся proposals (10 total/мес на free)', done: false },
+          { text: 'Guru: оставшиеся quotes (10 total/мес), только $500+', done: false },
+          { text: 'Claude Code генерирует тексты proposals', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 9",
+    title: "Оптимизация + Расширение каналов",
+    tasks: [
+      {
+        text: "Утренняя рутина",
+        tag: "Launch",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Telegram → Fiverr → PPH → Truelancer → Guru → LinkedIn', done: false },
+        ]
+      },
+      {
+        text: "Анализ и оптимизация Fiverr гигов",
+        tag: "Fiverr",
+        type: "user",
+        time: 45,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Fiverr Analytics: impressions, clicks, views для каждого гига', done: false },
+          { text: 'Если 0 impressions — проблема с title/tags, нужно менять', done: false },
+          { text: 'Посмотри конкурентов для идей по keywords', done: false },
+          { text: 'Обнови titles, tags, описания по результатам анализа', done: false },
+          { text: 'Попробуй другие thumbnail изображения', done: false },
+        ]
+      },
+      {
+        text: "Расширение на Reddit + Discord",
+        tag: "Launch",
+        type: "user",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Reddit: пост в r/forhire и r/EntrepreneurRideAlong', done: false },
+          { text: 'Discord: LangChain, Indie Hackers, AI builders communities', done: false },
+          { text: 'Представься с demo-ссылкой', done: false },
+        ]
+      },
+      {
+        text: "Follow-up по отправленным proposals",
+        tag: "Platforms",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Проверь все proposals с Days 6-7', done: false },
+          { text: 'Где платформа позволяет — отправь краткий follow-up', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Новое демо если есть спрос",
+        tag: "Demo",
+        type: "claude",
+        time: 60,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Если увидел спрос на конкретную нишу (например, law firms, e-commerce) — попроси Claude Code создать новый лендинг + knowledge base по тому же шаблону', done: false },
+          { text: '<b>Промпт:</b><br><code>Создай новое демо для ниши [НАЗВАНИЕ] в D:\\AI-Chatbot-Demo\\[slug]\\. Landing page + knowledge.md + обнови api/chat.js для новой ниши. Тот же подход что и для construction/dental/realestate.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Оптимизация scoring в scraper",
+        tag: "Automation",
+        type: "claude",
+        time: 20,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>Промпт:</b><br><code>Обнови D:\\Freelance-Scraper\\utils\\scorer.js — скорректируй веса на основе опыта: [опиши какие вакансии были релевантны, а какие нет]. Подкрути keyword weights и пороги бюджета.</code>', done: false },
+        ]
+      },
+    ]
+  },
+  {
+    day: "Day 10+",
+    title: "Устойчивая рутина + Масштабирование",
+    tasks: [
+      {
+        text: "Ежедневная рутина (утро, 30 мин)",
+        tag: "Launch",
+        type: "user",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Telegram: алерты от скрапера → approve/skip proposals', done: false },
+          { text: 'Fiverr: сообщения + Buyer Requests', done: false },
+          { text: 'PPH/Truelancer/Guru: сообщения', done: false },
+          { text: 'LinkedIn: уведомления', done: false },
+        ]
+      },
+      {
+        text: "Клиентская работа (2-4 часа)",
+        tag: "Launch",
+        type: "user",
+        time: 180,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'Работай над полученными заказами', done: false },
+          { text: 'Качество + скорость = хорошие отзывы = больше заказов', done: false },
+          { text: 'Улучшай демо по фидбеку клиентов', done: false },
+        ]
+      },
+      {
+        text: "LinkedIn outreach (ежедневно, 15 мин)",
+        tag: "LinkedIn",
+        type: "user",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '5-10 connection requests/день + follow-ups', done: false },
+          { text: 'Трекай ответы', done: false },
+        ]
+      },
+      {
+        text: "Еженедельно: управление бюджетом bids",
+        tag: "Platforms",
+        type: "user",
+        time: 15,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: 'PPH: 15 proposals/мес — распределяй равномерно', done: false },
+          { text: 'Truelancer: 10/мес (free) или 25/мес (Basic $10/мес)', done: false },
+          { text: 'Guru: 10 quotes/мес — только $500+ проекты', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Auto-send зелёных proposals (после 5+ успешных ручных)",
+        tag: "Automation",
+        type: "claude",
+        time: 30,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>ТОЛЬКО после 5+ вручную одобренных proposals хорошего качества</b>', done: false },
+          { text: '<b>Промпт:</b><br><code>Обнови D:\\Freelance-Scraper: для зелёных вакансий (score 8+) автоматически генерируй и отправляй proposals без ожидания одобрения. Отправляй Telegram уведомление: "Auto-submitted proposal for [job]. Reply /undo to cancel within 5 min." Реализуй /undo команду.</code>', done: false },
+        ]
+      },
+      {
+        text: "🤖 Claude Code: Auto-negotiation agent (Месяц 2+)",
+        tag: "Automation",
+        type: "claude",
+        time: 120,
+        status: "pending",
+        note: "",
+        substeps: [
+          { text: '<b>ТОЛЬКО после 3-5 завершённых проектов</b>', done: false },
+          { text: 'Claude-powered агент который: отвечает на первичные вопросы клиентов, уточняет требования, предлагает пакет (Basic/Standard/Premium), ведёт базовые переговоры, эскалирует тебе когда клиент готов заказать', done: false },
+          { text: 'Это продвинутая задача — сохрани на Месяц 2+', done: false },
+        ]
+      },
+    ]
+  },,
+];
+
+// ============================================
+// SECTION 2: STATE MANAGEMENT
+// ============================================
+let state = loadState();
+let activeFilter = 'all';
+let statusMenuTarget = null;
+let searchQuery = '';
+
+function loadState() {
+  try {
+    // 1. Try multi-project key
+    let raw = localStorage.getItem(STORAGE_KEY_MULTI);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.projects && parsed.projects.length > 0) {
+        // Merge substeps for each project
+        parsed.projects.forEach(proj => mergeSubsteps(proj));
+        return parsed;
+      }
+    }
+    // 2. Migrate from old v2 key
+    raw = localStorage.getItem(OLD_STORAGE_KEY_V2);
+    if (!raw) raw = localStorage.getItem(OLD_STORAGE_KEY_V1);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.plan && parsed.plan.length > 0) {
+        const id = genId();
+        const migrated = {
+          version: 1,
+          activeProjectId: id,
+          projects: [{
+            id: id,
+            name: 'AI Freelance Business — 10-Day Plan',
+            description: 'AI Voice & Text Chatbot | USA/UK/AU Clients | $100/day target',
+            color: '#6366f1',
+            createdAt: new Date().toISOString().slice(0,10),
+            startDate: parsed.startDate || new Date().toISOString().slice(0,10),
+            plan: parsed.plan
+          }]
+        };
+        mergeSubsteps(migrated.projects[0]);
+        return migrated;
+      }
+    }
+  } catch(e) {}
+  // 3. Fresh state
+  const id = genId();
+  return {
+    version: 1,
+    activeProjectId: id,
+    projects: [{
+      id: id,
+      name: 'AI Freelance Business — 10-Day Plan',
+      description: 'AI Voice & Text Chatbot | USA/UK/AU Clients | $100/day target',
+      color: '#6366f1',
+      createdAt: new Date().toISOString().slice(0,10),
+      startDate: new Date().toISOString().slice(0,10),
+      plan: JSON.parse(JSON.stringify(DEFAULT_PLAN))
+    }]
+  };
+}
+
+function getActiveProject() {
+  return state.projects.find(p => p.id === state.activeProjectId) || state.projects[0];
+}
+
+// Merge default substeps and time into a project (for tasks that don't have them yet)
+function mergeSubsteps(project) {
+  const plan = project.plan || [];
+  plan.forEach((day, di) => {
+    day.tasks.forEach((task, ti) => {
+      if (!task.substeps && DEFAULT_PLAN[di] && DEFAULT_PLAN[di].tasks[ti]) {
+        task.substeps = JSON.parse(JSON.stringify(DEFAULT_PLAN[di].tasks[ti].substeps || []));
+      }
+      if (task.time === undefined && DEFAULT_PLAN[di] && DEFAULT_PLAN[di].tasks[ti]) {
+        task.time = DEFAULT_PLAN[di].tasks[ti].time || 0;
+      }
+      if (!task.type && DEFAULT_PLAN[di] && DEFAULT_PLAN[di].tasks[ti]) {
+        task.type = DEFAULT_PLAN[di].tasks[ti].type || '';
+      }
+      if (task.substepsOpen === undefined) task.substepsOpen = false;
+    });
+  });
+  return project;
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY_MULTI, JSON.stringify(state));
+}
+
+function getSubstepProgress(task) {
+  if (!task.substeps || task.substeps.length === 0) return null;
+  const done = task.substeps.filter(s => s.done).length;
+  return { done, total: task.substeps.length, pct: Math.round(done / task.substeps.length * 100) };
+}
+
+// ============================================
+// SECTION 2b: PROJECT CRUD
+// ============================================
+let newProjColor = PROJECT_COLORS[0];
+let contextMenuProjectId = null;
+
+function openNewProjectModal() {
+  newProjColor = PROJECT_COLORS[Math.floor(Math.random() * PROJECT_COLORS.length)];
+  document.getElementById('newProjName').value = '';
+  document.getElementById('newProjDesc').value = '';
+  document.getElementById('newProjTemplate').checked = false;
+  const updatePicker = c => { newProjColor = c; renderColorPicker('newProjColorPicker', newProjColor, updatePicker); };
+  renderColorPicker('newProjColorPicker', newProjColor, updatePicker);
+  document.getElementById('newProjectModal').classList.add('show');
+  setTimeout(() => document.getElementById('newProjName').focus(), 100);
+}
+
+function closeNewProjectModal() {
+  document.getElementById('newProjectModal').classList.remove('show');
+}
+
+function renderColorPicker(containerId, selected, onSelect) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  PROJECT_COLORS.forEach(c => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch' + (c === selected ? ' selected' : '');
+    swatch.style.background = c;
+    swatch.onclick = () => onSelect(c);
+    el.appendChild(swatch);
+  });
+}
+
+function doCreateProject() {
+  const name = document.getElementById('newProjName').value.trim();
+  if (!name) { document.getElementById('newProjName').focus(); return; }
+  const desc = document.getElementById('newProjDesc').value.trim();
+  const useTemplate = document.getElementById('newProjTemplate').checked;
+  const id = genId();
+  const newProj = {
+    id,
+    name,
+    description: desc,
+    color: newProjColor,
+    createdAt: new Date().toISOString().slice(0, 10),
+    startDate: new Date().toISOString().slice(0, 10),
+    plan: useTemplate ? JSON.parse(JSON.stringify(DEFAULT_PLAN)) : [{ day: 'Day 1', title: 'Getting Started', tasks: [], collapsed: false }]
+  };
+  state.projects.push(newProj);
+  state.activeProjectId = id;
+  saveState();
+  closeNewProjectModal();
+  render();
+}
+
+function openProjectContextMenu(e, projId) {
+  e.preventDefault();
+  e.stopPropagation();
+  contextMenuProjectId = projId;
+  const menu = document.getElementById('projectContextMenu');
+  menu.style.display = 'block';
+  menu.style.left = e.clientX + 'px';
+  menu.style.top = e.clientY + 'px';
+  // Keep menu in viewport
+  requestAnimationFrame(() => {
+    const rect = menu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) menu.style.left = (window.innerWidth - rect.width - 8) + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top = (window.innerHeight - rect.height - 8) + 'px';
+  });
+}
+
+function closeProjectContextMenu() {
+  document.getElementById('projectContextMenu').style.display = 'none';
+  contextMenuProjectId = null;
+}
+
+function renameProjectPrompt() {
+  closeProjectContextMenu();
+  const proj = state.projects.find(p => p.id === contextMenuProjectId);
+  if (!proj) return;
+  const name = prompt('Project name:', proj.name);
+  if (name && name.trim()) {
+    proj.name = name.trim();
+    saveState();
+    render();
+  }
+}
+
+function editProjectDescPrompt() {
+  closeProjectContextMenu();
+  const proj = state.projects.find(p => p.id === contextMenuProjectId);
+  if (!proj) return;
+  const desc = prompt('Project description:', proj.description || '');
+  if (desc !== null) {
+    proj.description = desc.trim();
+    saveState();
+    render();
+  }
+}
+
+function duplicateProject() {
+  closeProjectContextMenu();
+  const src = state.projects.find(p => p.id === contextMenuProjectId);
+  if (!src) return;
+  const id = genId();
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = id;
+  copy.name = src.name + ' (Copy)';
+  copy.createdAt = new Date().toISOString().slice(0, 10);
+  state.projects.push(copy);
+  state.activeProjectId = id;
+  saveState();
+  render();
+}
+
+function deleteProject() {
+  closeProjectContextMenu();
+  if (state.projects.length <= 1) { alert('Cannot delete the last project.'); return; }
+  const proj = state.projects.find(p => p.id === contextMenuProjectId);
+  if (!proj) return;
+  if (!confirm('Delete project "' + proj.name + '"? This cannot be undone.')) return;
+  state.projects = state.projects.filter(p => p.id !== contextMenuProjectId);
+  if (state.activeProjectId === contextMenuProjectId) {
+    state.activeProjectId = state.projects[0].id;
+  }
+  saveState();
+  render();
+}
+
+function changeColorPrompt() {
+  closeProjectContextMenu();
+  const proj = state.projects.find(p => p.id === contextMenuProjectId);
+  if (!proj) return;
+  // Create a small inline color picker modal
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.innerHTML = `<div class="modal" style="max-width:320px;text-align:center;">
+    <h3>Choose Color</h3>
+    <div class="color-picker" style="justify-content:center;" id="changeColorPicker"></div>
+    <div class="modal-actions" style="margin-top:16px;justify-content:center;">
+      <button class="btn" id="changeColorCancel">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const picker = overlay.querySelector('#changeColorPicker');
+  PROJECT_COLORS.forEach(c => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch' + (c === proj.color ? ' selected' : '');
+    swatch.style.background = c;
+    swatch.onclick = () => {
+      proj.color = c;
+      saveState();
+      render();
+      overlay.remove();
+    };
+    picker.appendChild(swatch);
+  });
+  overlay.querySelector('#changeColorCancel').onclick = () => overlay.remove();
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+}
+
+// ============================================
+// SECTION 3: RENDERING
+// ============================================
+function render() {
+  const proj = getActiveProject();
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  // Update dynamic header
+  document.getElementById('projectTitle').textContent = proj.name;
+  document.getElementById('projectSub').textContent = proj.description || '';
+
+  let totalTasks = 0, totalDone = 0, totalTimeLeft = 0, doneToday = 0;
+  const today = new Date().toISOString().slice(0,10);
+
+  getActiveProject().plan.forEach((day, di) => {
+    const card = document.createElement('div');
+    card.className = 'day-card' + (day.collapsed ? ' collapsed' : '');
+
+    const visibleTasks = day.tasks.filter(t => activeFilter === 'all' || t.status === activeFilter);
+    const dayDone = day.tasks.filter(t => t.status === 'completed').length;
+    const dayTotal = day.tasks.length;
+    totalTasks += dayTotal;
+    totalDone += dayDone;
+    const dayPct = dayTotal ? Math.round(dayDone / dayTotal * 100) : 0;
+
+    // Count done today + time left
+    day.tasks.forEach(t => {
+      if (t.status !== 'completed' && t.status !== 'cancelled') totalTimeLeft += (t.time || 0);
+      if (t.completedAt === today) doneToday++;
+    });
+
+    // All done glow
+    if (dayDone === dayTotal && dayTotal > 0) card.classList.add('all-done');
+
+    card.innerHTML = `
+      <div class="day-header" onclick="toggleDay(${di})">
+        <span class="day-badge">${day.day}</span>
+        <span class="day-title" ondblclick="event.stopPropagation();this.contentEditable=true;this.focus();" onblur="this.contentEditable=false;updateDayTitle(${di},this);">${day.title}</span>
+        <div class="day-progress-mini"><div class="day-progress-mini-fill" style="width:${dayPct}%"></div></div>
+        <span class="day-count">${dayDone}/${dayTotal}</span>
+        <span class="day-chevron">&#9660;</span>
+      </div>
+      <div class="day-body"></div>
+    `;
+
+    const body = card.querySelector('.day-body');
+    let hasVisibleInSearch = false;
+
+    visibleTasks.forEach((task, ti) => {
+      const realIdx = day.tasks.indexOf(task);
+      const taskEl = createTaskEl(di, realIdx, task);
+
+      // Search filter
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const textMatch = task.text.toLowerCase().includes(q);
+        const tagMatch = (task.tag || '').toLowerCase().includes(q);
+        const subMatch = (task.substeps || []).some(s => s.text.toLowerCase().includes(q));
+        if (!textMatch && !tagMatch && !subMatch) {
+          taskEl.classList.add('search-hidden');
+        } else {
+          hasVisibleInSearch = true;
+        }
+      } else {
+        hasVisibleInSearch = true;
+      }
+
+      body.appendChild(taskEl);
+    });
+
+    // Hide entire day card if search finds nothing
+    if (searchQuery && !hasVisibleInSearch) card.classList.add('search-hidden');
+
+    // Add task row
+    const addRow = document.createElement('div');
+    addRow.className = 'add-task-row';
+    addRow.innerHTML = `<input class="add-task-input" placeholder="+ Add task..." onkeydown="if(event.key==='Enter')addTask(${di},this)">`;
+    body.appendChild(addRow);
+
+    main.appendChild(card);
+  });
+
+  // Add Day button
+  const addDayRow = document.createElement('div');
+  addDayRow.style.cssText = 'text-align:center;padding:16px;';
+  addDayRow.innerHTML = `<button class="btn" onclick="addDay()" style="opacity:.6;">+ Add Day</button>`;
+  main.appendChild(addDayRow);
+
+  // Update header stats
+  document.getElementById('totalPercent').textContent = totalTasks ? Math.round(totalDone/totalTasks*100) + '%' : '0%';
+  document.getElementById('totalDone').textContent = totalDone + '/' + totalTasks;
+  document.getElementById('totalProgress').style.width = (totalTasks ? totalDone/totalTasks*100 : 0) + '%';
+  document.getElementById('startDate').textContent = getActiveProject().startDate || '—';
+  document.getElementById('doneToday').textContent = doneToday;
+
+  // Time left
+  if (totalTimeLeft >= 60) {
+    const h = Math.floor(totalTimeLeft / 60);
+    const m = totalTimeLeft % 60;
+    document.getElementById('timeLeft').textContent = h + 'h ' + (m ? m + 'm' : '');
+  } else {
+    document.getElementById('timeLeft').textContent = totalTimeLeft + 'm';
+  }
+
+  // Current day
+  const firstIncomplete = getActiveProject().plan.findIndex(d => d.tasks.some(t => t.status !== 'completed' && t.status !== 'cancelled'));
+  document.getElementById('currentDay').textContent = firstIncomplete >= 0 ? getActiveProject().plan[firstIncomplete].day.replace('Day ','') : '✓';
+
+  // Render project tabs
+  renderProjectTabs();
+
+  // Auto-scroll to first incomplete day
+  if (firstIncomplete >= 0 && !window._hasAutoScrolled) {
+    window._hasAutoScrolled = true;
+    const cards = document.querySelectorAll('.day-card');
+    if (cards[firstIncomplete]) {
+      setTimeout(() => cards[firstIncomplete].scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    }
+  }
+}
+
+function renderProjectTabs() {
+  const bar = document.getElementById('projectBar');
+  bar.innerHTML = '';
+  state.projects.forEach(proj => {
+    const total = proj.plan.reduce((s, d) => s + d.tasks.length, 0);
+    const done = proj.plan.reduce((s, d) => s + d.tasks.filter(t => t.status === 'completed').length, 0);
+    const pct = total ? Math.round(done / total * 100) : 0;
+
+    const tab = document.createElement('button');
+    const isActive = proj.id === state.activeProjectId;
+    tab.className = 'project-tab' + (isActive ? ' active' : '');
+    if (isActive) tab.style.borderColor = proj.color;
+    tab.innerHTML = `<span class="project-tab-dot" style="background:${proj.color}"></span>${proj.name}<span class="project-tab-pct">${pct}%</span>`;
+    tab.onclick = () => setActiveProject(proj.id);
+    tab.oncontextmenu = (e) => openProjectContextMenu(e, proj.id);
+    bar.appendChild(tab);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'project-add-btn';
+  addBtn.textContent = '+ New';
+  addBtn.onclick = openNewProjectModal;
+  bar.appendChild(addBtn);
+}
+
+function setActiveProject(id) {
+  if (state.activeProjectId === id) return;
+  state.activeProjectId = id;
+  searchQuery = '';
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.value = '';
+  activeFilter = 'all';
+  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.filter === 'all'));
+  saveState();
+  render();
+}
+
+function createTaskEl(di, ti, task) {
+  const el = document.createElement('div');
+  el.className = 'task' + (task.status === 'completed' ? ' completed' : '');
+
+  const checkClass = task.status === 'completed' ? 'checked' :
+                     task.status === 'in-progress' ? 'in-progress' :
+                     task.status === 'cancelled' ? 'cancelled' : '';
+
+  const checkIcon = task.status === 'completed' ? '&#10003;' :
+                    task.status === 'in-progress' ? '&#9654;' :
+                    task.status === 'cancelled' ? '&#10005;' : '';
+
+  const sp = getSubstepProgress(task);
+  const hasSubsteps = task.substeps && task.substeps.length > 0;
+  const isOpen = task.substepsOpen;
+
+  let substepHTML = '';
+  if (hasSubsteps) {
+    substepHTML += `<button class="task-expand-btn" onclick="event.stopPropagation();toggleSubsteps(${di},${ti})">
+      <span class="arrow ${isOpen ? 'open' : ''}">&#9654;</span>
+      ${sp.done}/${sp.total} steps
+      <span class="substep-progress"><span class="substep-progress-fill" style="width:${sp.pct}%"></span></span>
+    </button>`;
+  }
+
+  el.innerHTML = `
+    <div class="task-checkbox ${checkClass}" onclick="openStatusMenu(event,${di},${ti})">${checkIcon}</div>
+    <div class="task-content">
+      <div class="task-text" contenteditable="true" onblur="updateText(${di},${ti},this)">${task.text}</div>
+      <div class="task-meta">
+        ${task.type && TYPE_BADGES[task.type] ? `<span class="task-type-badge type-${task.type}">${TYPE_BADGES[task.type].icon} ${TYPE_BADGES[task.type].label}</span>` : ''}
+        ${task.tag ? `<span class="task-tag" style="background:${(TAG_COLORS[task.tag]||{}).bg||'var(--blue-bg)'};color:${(TAG_COLORS[task.tag]||{}).color||'var(--blue)'}">${task.tag}</span>` : ''}
+        ${task.time ? `<span class="task-time">${task.time >= 60 ? Math.floor(task.time/60)+'h'+(task.time%60?task.time%60+'m':'') : task.time+'m'}</span>` : ''}
+        ${substepHTML}
+        <button class="task-note-btn" onclick="toggleNote(this.closest('.task'),${di},${ti})">
+          ${task.note ? '&#128221; note' : '+ note'}
+        </button>
+      </div>
+      ${task.showNote || task.note ? `
+        <div class="task-note">
+          <textarea placeholder="Write a note..." oninput="updateNote(${di},${ti},this)">${task.note || ''}</textarea>
+        </div>
+      ` : ''}
+    </div>
+    <button class="task-delete" onclick="deleteTask(${di},${ti})" title="Delete task">&#10005;</button>
+  `;
+
+  // Render substeps
+  if (hasSubsteps) {
+    const substepsContainer = document.createElement('div');
+    substepsContainer.className = 'task-substeps ' + (isOpen ? 'expanded' : 'collapsed');
+
+    task.substeps.forEach((sub, si) => {
+      const subEl = document.createElement('div');
+      subEl.className = 'substep' + (sub.done ? ' done' : '');
+      subEl.innerHTML = `
+        <div class="substep-checkbox ${sub.done ? 'checked' : ''}" onclick="toggleSubstep(${di},${ti},${si})">${sub.done ? '&#10003;' : ''}</div>
+        <div class="substep-text" contenteditable="true" onblur="updateSubstepText(${di},${ti},${si},this)">${sub.text}</div>
+        <button class="substep-delete" onclick="deleteSubstep(${di},${ti},${si})" title="Delete step">&#10005;</button>
+      `;
+      substepsContainer.appendChild(subEl);
+    });
+
+    // Add substep input
+    const addSubRow = document.createElement('div');
+    addSubRow.className = 'substep-add-row';
+    addSubRow.innerHTML = `<input class="substep-add-input" placeholder="+ Add step..." onkeydown="if(event.key==='Enter')addSubstep(${di},${ti},this)">`;
+    substepsContainer.appendChild(addSubRow);
+
+    el.appendChild(substepsContainer);
+  }
+
+  return el;
+}
+
+// ============================================
+// SECTION 4: TASK & SUBSTEP OPERATIONS
+// ============================================
+function toggleDay(di) {
+  getActiveProject().plan[di].collapsed = !getActiveProject().plan[di].collapsed;
+  saveState();
+  render();
+}
+
+function toggleSubsteps(di, ti) {
+  getActiveProject().plan[di].tasks[ti].substepsOpen = !getActiveProject().plan[di].tasks[ti].substepsOpen;
+  saveState();
+  render();
+}
+
+function toggleSubstep(di, ti, si) {
+  const task = getActiveProject().plan[di].tasks[ti];
+  task.substeps[si].done = !task.substeps[si].done;
+
+  // Auto-update task status based on substeps
+  const allDone = task.substeps.every(s => s.done);
+  const anyDone = task.substeps.some(s => s.done);
+
+  const wasCompleted = task.status === 'completed';
+  if (allDone) {
+    task.status = 'completed';
+    task.substepsOpen = false; // auto-collapse when done
+    if (!wasCompleted) {
+      task.completedAt = new Date().toISOString().slice(0,10);
+      // Check if all tasks in this day are done — confetti!
+      const day = getActiveProject().plan[di];
+      if (day.tasks.every(t => t.status === 'completed' || t.status === 'cancelled')) {
+        setTimeout(launchConfetti, 300);
+      }
+    }
+  } else if (anyDone) {
+    task.status = 'in-progress';
+    task.substepsOpen = true; // auto-expand when in progress
+    delete task.completedAt;
+  } else {
+    task.status = 'pending';
+    delete task.completedAt;
+  }
+
+  saveState();
+  render();
+}
+
+function addSubstep(di, ti, input) {
+  const text = input.value.trim();
+  if (!text) return;
+  if (!getActiveProject().plan[di].tasks[ti].substeps) getActiveProject().plan[di].tasks[ti].substeps = [];
+  getActiveProject().plan[di].tasks[ti].substeps.push({ text, done: false });
+  input.value = '';
+  saveState();
+  render();
+}
+
+function deleteSubstep(di, ti, si) {
+  getActiveProject().plan[di].tasks[ti].substeps.splice(si, 1);
+  saveState();
+  render();
+}
+
+function updateSubstepText(di, ti, si, el) {
+  getActiveProject().plan[di].tasks[ti].substeps[si].text = el.innerHTML.trim();
+  saveState();
+}
+
+function openStatusMenu(e, di, ti) {
+  e.stopPropagation();
+  const menu = document.getElementById('statusMenu');
+  statusMenuTarget = { di, ti };
+  menu.style.display = 'block';
+  const rect = e.target.getBoundingClientRect();
+  menu.style.left = rect.left + 'px';
+  menu.style.top = (rect.bottom + 4) + 'px';
+}
+
+function setStatus(status) {
+  if (!statusMenuTarget) return;
+  const { di, ti } = statusMenuTarget;
+  const task = getActiveProject().plan[di].tasks[ti];
+  const wasCompleted = task.status === 'completed';
+  task.status = status;
+  if (status === 'completed' && !wasCompleted) {
+    task.completedAt = new Date().toISOString().slice(0,10);
+    // Check if all tasks in this day are done — confetti!
+    const day = getActiveProject().plan[di];
+    if (day.tasks.every(t => t.status === 'completed' || t.status === 'cancelled')) {
+      setTimeout(launchConfetti, 300);
+    }
+  } else if (status !== 'completed') {
+    delete task.completedAt;
+  }
+  saveState();
+  render();
+  document.getElementById('statusMenu').style.display = 'none';
+  statusMenuTarget = null;
+}
+
+document.addEventListener('click', () => {
+  document.getElementById('statusMenu').style.display = 'none';
+  closeProjectContextMenu();
+});
+
+function updateText(di, ti, el) {
+  getActiveProject().plan[di].tasks[ti].text = el.textContent.trim();
+  saveState();
+}
+
+function updateNote(di, ti, el) {
+  getActiveProject().plan[di].tasks[ti].note = el.value;
+  saveState();
+}
+
+function toggleNote(taskEl, di, ti) {
+  getActiveProject().plan[di].tasks[ti].showNote = !getActiveProject().plan[di].tasks[ti].showNote;
+  saveState();
+  render();
+}
+
+function addTask(di, input) {
+  const text = input.value.trim();
+  if (!text) return;
+  getActiveProject().plan[di].tasks.push({ text, tag: '', status: 'pending', note: '', substeps: [], substepsOpen: false });
+  input.value = '';
+  saveState();
+  render();
+}
+
+function deleteTask(di, ti) {
+  getActiveProject().plan[di].tasks.splice(ti, 1);
+  saveState();
+  render();
+}
+
+function updateDayTitle(di, el) {
+  const text = el.textContent.trim();
+  if (text) getActiveProject().plan[di].title = text;
+  saveState();
+}
+
+function addDay() {
+  const plan = getActiveProject().plan;
+  const num = plan.length + 1;
+  plan.push({ day: 'Day ' + num, title: 'New Day', tasks: [], collapsed: false });
+  saveState();
+  render();
+  // Scroll to the new day
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.day-card');
+    if (cards[cards.length - 1]) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+// ============================================
+// SECTION 5: EXPAND / COLLAPSE / RESET
+// ============================================
+function expandAll() {
+  getActiveProject().plan.forEach(d => d.collapsed = false);
+  saveState();
+  render();
+}
+
+function collapseAll() {
+  getActiveProject().plan.forEach(d => d.collapsed = true);
+  saveState();
+  render();
+}
+
+// ============================================
+// SECTION 6: IMPORT / EXPORT
+// ============================================
+function exportJSON() {
+  const proj = getActiveProject();
+  const exportData = { plan: proj.plan, startDate: proj.startDate, name: proj.name };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
+  a.download = slug + '-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function importJSON() {
+  document.getElementById('importModal').classList.add('show');
+}
+
+function closeImport() {
+  document.getElementById('importModal').classList.remove('show');
+}
+
+function doImport() {
+  try {
+    const data = JSON.parse(document.getElementById('importArea').value);
+    if (data.projects) {
+      // New multi-project format
+      state = data;
+      state.projects.forEach(proj => mergeSubsteps(proj));
+    } else if (data.plan) {
+      // Old single-project format — import as active project's plan
+      const proj = getActiveProject();
+      proj.plan = data.plan;
+      proj.startDate = data.startDate || proj.startDate;
+      mergeSubsteps(proj);
+    } else {
+      alert('Invalid format');
+      return;
+    }
+    saveState();
+    render();
+    closeImport();
+  } catch(e) {
+    alert('Invalid JSON: ' + e.message);
+  }
+}
+
+function resetAll() {
+  if (confirm('Reset current project progress? This cannot be undone.')) {
+    const proj = getActiveProject();
+    proj.plan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+    proj.startDate = new Date().toISOString().slice(0,10);
+    saveState();
+    render();
+  }
+}
+
+// ============================================
+// SECTION 7: SEARCH, FILTER & EVENT LISTENERS
+// ============================================
+
+// Filter pills
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeFilter = pill.dataset.filter;
+    render();
+  });
+});
+
+// Make links clickable inside contenteditable elements
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('.task-text a, .substep-text a');
+  if (link) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(link.href, '_blank');
+  }
+}, true);
+
+// Search
+function onSearch(val) {
+  searchQuery = val.trim();
+  render();
+}
+
+// ============================================
+// SECTION 8: EFFECTS & UTILITIES
+// ============================================
+
+// Confetti celebration
+function launchConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+  const colors = ['#6366f1','#22c55e','#eab308','#ef4444','#ec4899','#3b82f6','#f59e0b','#06b6d4'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 1.2 + 's';
+    piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.remove(), 4000);
+}
+
+// Auto-scroll to current day on load
+function autoScrollToCurrentDay() {
+  const firstIncomplete = getActiveProject().plan.findIndex(d => d.tasks.some(t => t.status !== 'completed' && t.status !== 'cancelled'));
+  if (firstIncomplete > 0) {
+    const cards = document.querySelectorAll('.day-card');
+    if (cards[firstIncomplete]) {
+      setTimeout(() => {
+        cards[firstIncomplete].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }
+}
+
+// ============================================
+// SECTION 9: INITIALIZATION
+// ============================================
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+});
+
+// Enter key in new project modal
+document.getElementById('newProjName').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doCreateProject();
+});
+
+render();
+autoScrollToCurrentDay();
+</script>
+</body>
+</html>

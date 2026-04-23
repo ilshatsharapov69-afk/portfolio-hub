@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cebuano / Bisaya — Learn Dashboard v2</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0f0f1a;
+  --card-bg: #1a1a2e;
+  --card-hover: #222240;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --green: #4ecdc4;
+  --orange: #ffbe76;
+  --red: #ff6b6b;
+  --blue: #74b9ff;
+  --text: #e8e8f0;
+  --text-dim: #8888aa;
+  --noun-color: #74b9ff;
+  --verb-color: #ff6b6b;
+  --adj-color: #4ecdc4;
+  --phrase-color: #ffbe76;
+  --pronoun-color: #a29bfe;
+  --question-color: #fd79a8;
+  --connector-color: #81ecec;
+  --number-color: #ffeaa7;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.header { text-align: center; padding: 20px 0 15px; }
+.header h1 {
+  font-size: 2.2em;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 5px;
+}
+.header p { color: var(--text-dim); font-size: 1em; }
+
+/* Stats bar */
+.stats-bar { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 15px 0 20px; }
+.stat-card {
+  background: var(--card-bg); border-radius: 12px; padding: 12px 20px;
+  text-align: center; min-width: 100px;
+}
+.stat-card .number { font-size: 1.8em; font-weight: 700; color: var(--accent); }
+.stat-card .label { font-size: 0.8em; color: var(--text-dim); margin-top: 3px; }
+.stat-card.due .number { color: var(--accent2); }
+.stat-card.learned .number { color: var(--green); }
+.stat-card.streak .number { color: var(--orange); }
+.stat-card.combo .number { color: #ffeaa7; }
+
+/* Progress bar */
+.progress-container { max-width: 600px; margin: 0 auto 20px; }
+.progress-bar-bg { background: var(--card-bg); border-radius: 10px; height: 16px; overflow: hidden; }
+.progress-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 10px; transition: width 0.5s ease;
+}
+.progress-label { text-align: center; color: var(--text-dim); font-size: 0.85em; margin-top: 5px; }
+
+/* Tabs */
+.tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+.tab {
+  padding: 9px 18px; border-radius: 8px; border: 1px solid #333;
+  background: var(--card-bg); color: var(--text); cursor: pointer; font-size: 0.95em; transition: all 0.2s;
+}
+.tab:hover { background: var(--card-hover); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tab .badge {
+  background: var(--accent2); color: #fff; border-radius: 10px;
+  padding: 1px 7px; font-size: 0.75em; margin-left: 5px;
+}
+
+/* Category filters */
+.filters { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 5px 14px; border-radius: 20px; border: 1px solid #444;
+  background: transparent; color: var(--text-dim); cursor: pointer; font-size: 0.8em; transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Word cards grid */
+.cards-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px; max-width: 1200px; margin: 0 auto; padding-bottom: 30px;
+}
+.word-card {
+  background: var(--card-bg); border-radius: 14px; padding: 18px;
+  cursor: pointer; transition: all 0.3s; border-left: 4px solid var(--accent); position: relative;
+}
+.word-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+.word-card.noun { border-left-color: var(--noun-color); }
+.word-card.verb { border-left-color: var(--verb-color); }
+.word-card.adjective { border-left-color: var(--adj-color); }
+.word-card.phrase { border-left-color: var(--phrase-color); }
+.word-card.pronoun { border-left-color: var(--pronoun-color); }
+.word-card.question { border-left-color: var(--question-color); }
+.word-card.connector { border-left-color: var(--connector-color); }
+.word-card.number { border-left-color: var(--number-color); }
+.word-card .emoji { font-size: 2.2em; margin-bottom: 8px; }
+.word-card .cebuano { font-size: 1.5em; font-weight: 700; margin-bottom: 3px; }
+.word-card .pronunciation { color: var(--text-dim); font-size: 0.9em; margin-bottom: 6px; }
+.word-card .english { font-size: 1em; color: var(--green); margin-bottom: 5px; }
+.word-card .example-text { font-size: 0.8em; color: var(--blue); font-style: italic; display: none; margin-bottom: 4px; }
+.word-card .mnemonic { font-size: 0.8em; color: var(--orange); font-style: italic; display: none; }
+.word-card.flipped .mnemonic, .word-card.flipped .example-text { display: block; }
+.word-card .category-badge {
+  position: absolute; top: 8px; right: 8px; font-size: 0.7em;
+  padding: 2px 7px; border-radius: 10px; background: rgba(255,255,255,0.1); color: var(--text-dim);
+}
+.word-card .sr-info { position: absolute; bottom: 8px; right: 8px; font-size: 0.7em; color: var(--text-dim); }
+.word-card .audio-btn {
+  position: absolute; top: 8px; right: 60px; background: none; border: none;
+  color: var(--text-dim); cursor: pointer; font-size: 1.1em; padding: 2px 6px;
+}
+.word-card .audio-btn:hover { color: var(--accent); }
+.word-card .level-dots { display: flex; gap: 3px; margin-top: 8px; }
+.level-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; }
+.level-dot.filled { background: var(--green); }
+
+/* ========== DAILY SESSION ========== */
+.daily-container { display: none; max-width: 550px; margin: 0 auto; text-align: center; }
+.daily-welcome {
+  background: var(--card-bg); border-radius: 20px; padding: 40px 30px;
+}
+.daily-welcome h2 { font-size: 1.8em; margin-bottom: 15px; }
+.daily-plan {
+  display: flex; gap: 15px; justify-content: center; margin: 20px 0;
+}
+.daily-plan-item {
+  background: var(--bg); border-radius: 12px; padding: 15px 20px; min-width: 120px;
+}
+.daily-plan-item .num { font-size: 2em; font-weight: 700; }
+.daily-plan-item .lbl { font-size: 0.85em; color: var(--text-dim); margin-top: 3px; }
+.daily-plan-item.learn .num { color: var(--blue); }
+.daily-plan-item.review .num { color: var(--orange); }
+.daily-plan-item.quiz .num { color: var(--green); }
+.daily-start-btn {
+  margin-top: 20px; padding: 14px 40px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: 1.15em; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+}
+.daily-start-btn:hover { transform: scale(1.05); }
+
+/* Phase indicator */
+.phase-indicator {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; align-items: center;
+}
+.phase-step {
+  width: 10px; height: 10px; border-radius: 50%; background: #333;
+}
+.phase-step.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); width: 12px; height: 12px; }
+.phase-step.done { background: var(--green); }
+.phase-label { color: var(--text-dim); font-size: 0.9em; margin-left: 8px; }
+
+/* ========== LEARN MODE ========== */
+.learn-container { display: none; max-width: 550px; margin: 0 auto; text-align: center; }
+.learn-card {
+  background: var(--card-bg); border-radius: 20px; padding: 40px 30px; min-height: 400px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.learn-card .step-label {
+  font-size: 0.8em; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px;
+}
+.learn-card .emoji { font-size: 4em; margin-bottom: 15px; }
+.learn-card .cebuano { font-size: 2.5em; font-weight: 700; margin-bottom: 5px; }
+.learn-card .pronunciation { color: var(--text-dim); font-size: 1.1em; margin-bottom: 12px; }
+.learn-card .english { font-size: 1.4em; color: var(--green); margin-bottom: 10px; }
+.learn-card .mnemonic { color: var(--orange); font-style: italic; margin-bottom: 10px; font-size: 0.95em; }
+.learn-card .example { color: var(--blue); font-style: italic; font-size: 0.95em; margin-bottom: 5px; }
+.learn-card .example-trans { color: var(--text-dim); font-size: 0.85em; margin-bottom: 15px; }
+.learn-card .hidden-field {
+  background: var(--bg); border-radius: 8px; padding: 12px 20px; margin: 8px 0;
+  cursor: pointer; color: var(--text-dim); font-size: 1em; min-width: 200px;
+}
+.learn-card .hidden-field:hover { background: #222; }
+.learn-card .hidden-field.revealed { background: transparent; cursor: default; }
+
+.learn-btn {
+  margin-top: 15px; padding: 12px 35px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; font-size: 1em; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.learn-btn:hover { transform: scale(1.05); }
+.learn-btn.next { background: var(--green); color: #333; }
+
+.learn-progress { margin-top: 12px; color: var(--text-dim); font-size: 0.85em; }
+
+/* ========== STUDY (SRS REVIEW) ========== */
+.flashcard-container { display: none; max-width: 550px; margin: 0 auto; text-align: center; }
+.flashcard {
+  background: var(--card-bg); border-radius: 20px; padding: 45px 35px; min-height: 350px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+}
+.flashcard .emoji { font-size: 3.5em; margin-bottom: 15px; }
+.flashcard .cebuano { font-size: 2.3em; font-weight: 700; margin-bottom: 8px; }
+.flashcard .pronunciation { color: var(--text-dim); font-size: 1.1em; margin-bottom: 12px; }
+.flashcard .english { font-size: 1.4em; color: var(--green); display: none; margin-bottom: 8px; }
+.flashcard .mnemonic { color: var(--orange); font-style: italic; display: none; font-size: 0.9em; margin-bottom: 6px; }
+.flashcard .example { color: var(--blue); font-style: italic; display: none; font-size: 0.9em; }
+.flashcard .hint { color: var(--text-dim); font-size: 0.85em; margin-top: 15px; }
+.flashcard .audio-btn-fc {
+  position: absolute; top: 15px; right: 15px; background: none; border: none;
+  color: var(--text-dim); cursor: pointer; font-size: 1.3em;
+}
+.flashcard .audio-btn-fc:hover { color: var(--accent); }
+.flashcard.revealed .english, .flashcard.revealed .mnemonic, .flashcard.revealed .example { display: block; }
+.flashcard.revealed .hint { display: none; }
+
+.flashcard-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+.fc-btn {
+  padding: 11px 24px; border-radius: 10px; border: none; font-size: 0.95em;
+  cursor: pointer; font-weight: 600; transition: all 0.2s;
+}
+.fc-btn.again { background: var(--red); color: #fff; }
+.fc-btn.hard { background: var(--orange); color: #333; }
+.fc-btn.good { background: var(--green); color: #333; }
+.fc-btn.easy { background: var(--blue); color: #333; }
+.fc-btn:hover { transform: scale(1.05); }
+.fc-btn .interval { display: block; font-size: 0.7em; font-weight: 400; opacity: 0.8; }
+.flashcard-progress { margin-top: 12px; color: var(--text-dim); font-size: 0.85em; }
+
+/* ========== QUIZ MODE ========== */
+.quiz-container { display: none; max-width: 550px; margin: 0 auto; text-align: center; }
+.quiz-card { background: var(--card-bg); border-radius: 20px; padding: 35px; margin-bottom: 15px; }
+.quiz-card .emoji { font-size: 2.5em; margin-bottom: 12px; }
+.quiz-card .question { font-size: 1.6em; font-weight: 700; margin-bottom: 4px; }
+.quiz-card .sub-question { font-size: 0.95em; color: var(--text-dim); margin-bottom: 20px; }
+.quiz-card .quiz-type-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 10px;
+  background: rgba(108,99,255,0.2); color: var(--accent); font-size: 0.75em; margin-bottom: 15px;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-option {
+  padding: 13px 18px; border-radius: 10px; border: 2px solid #333;
+  background: transparent; color: var(--text); font-size: 1.05em;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+}
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option.correct { border-color: var(--green); background: rgba(78,205,196,0.15); }
+.quiz-option.wrong { border-color: var(--red); background: rgba(255,107,107,0.15); }
+
+/* Typing quiz */
+.typing-input-wrap { position: relative; margin-bottom: 15px; }
+.typing-input {
+  width: 100%; padding: 14px 18px; border-radius: 10px; border: 2px solid #444;
+  background: var(--bg); color: var(--text); font-size: 1.2em; text-align: center;
+  outline: none; transition: border-color 0.2s;
+}
+.typing-input:focus { border-color: var(--accent); }
+.typing-input.correct { border-color: var(--green); background: rgba(78,205,196,0.1); }
+.typing-input.wrong { border-color: var(--red); background: rgba(255,107,107,0.1); }
+.typing-submit {
+  margin-top: 10px; padding: 10px 30px; border-radius: 8px; border: none;
+  background: var(--accent); color: #fff; font-size: 1em; cursor: pointer;
+}
+
+/* Matching quiz */
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.match-item {
+  padding: 12px; border-radius: 10px; border: 2px solid #333;
+  background: transparent; color: var(--text); cursor: pointer; font-size: 0.95em;
+  transition: all 0.2s; text-align: center;
+}
+.match-item:hover { border-color: var(--accent); }
+.match-item.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+.match-item.matched { border-color: var(--green); background: rgba(78,205,196,0.15); opacity: 0.6; pointer-events: none; }
+.match-item.wrong-match { border-color: var(--red); background: rgba(255,107,107,0.15); }
+
+.quiz-result {
+  padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 1em; display: none;
+}
+.quiz-result.show { display: block; }
+.quiz-result.correct-result { background: rgba(78,205,196,0.15); color: var(--green); }
+.quiz-result.wrong-result { background: rgba(255,107,107,0.15); color: var(--red); }
+
+.quiz-next-btn {
+  margin-top: 12px; padding: 10px 28px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; font-size: 0.95em; cursor: pointer; display: none;
+}
+.quiz-score { color: var(--text-dim); margin-top: 8px; font-size: 0.85em; }
+.combo-display {
+  font-size: 0.9em; margin-top: 5px;
+}
+.combo-display .combo-fire { color: var(--orange); }
+
+/* ========== SENTENCE BUILDER ========== */
+.sentence-container { display: none; max-width: 600px; margin: 0 auto; text-align: center; }
+.sentence-card { background: var(--card-bg); border-radius: 20px; padding: 30px; }
+.sentence-prompt { font-size: 1.2em; margin-bottom: 8px; }
+.sentence-translation { color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+.sentence-slots {
+  min-height: 55px; border: 2px dashed #444; border-radius: 12px;
+  padding: 12px; margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; align-items: center;
+}
+.sentence-slots.correct { border-color: var(--green); }
+.sentence-slots.wrong { border-color: var(--red); }
+.word-chip {
+  padding: 8px 16px; border-radius: 8px; background: var(--accent);
+  color: #fff; cursor: pointer; font-size: 1em; transition: all 0.2s; user-select: none;
+}
+.word-chip:hover { transform: scale(1.05); }
+.word-chip.in-slot { background: var(--green); color: #333; }
+.word-bank {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;
+}
+.sentence-check-btn {
+  padding: 10px 30px; border-radius: 10px; border: none;
+  background: var(--green); color: #333; font-size: 1em; font-weight: 600; cursor: pointer;
+}
+.sentence-result { margin-top: 12px; font-size: 1em; }
+.sentence-next-btn {
+  margin-top: 10px; padding: 10px 28px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; font-size: 0.95em; cursor: pointer; display: none;
+}
+
+/* ========== DAILY SUMMARY ========== */
+.daily-summary {
+  background: var(--card-bg); border-radius: 20px; padding: 40px; text-align: center;
+}
+.daily-summary h2 { margin-bottom: 15px; }
+.daily-summary .big-emoji { font-size: 4em; margin-bottom: 10px; }
+.summary-stats { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+.summary-stat { text-align: center; }
+.summary-stat .val { font-size: 2em; font-weight: 700; }
+.summary-stat .lbl { font-size: 0.85em; color: var(--text-dim); }
+
+/* ========== SETTINGS ========== */
+.settings-container { display: none; max-width: 600px; margin: 0 auto; }
+.settings-group { background: var(--card-bg); border-radius: 14px; padding: 18px; margin-bottom: 12px; }
+.settings-group h3 { margin-bottom: 12px; color: var(--accent); }
+.setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #222;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row label { color: var(--text); font-size: 0.95em; }
+.setting-row select, .setting-row input[type="number"] {
+  background: var(--bg); color: var(--text); border: 1px solid #444;
+  border-radius: 6px; padding: 5px 10px; font-size: 0.9em;
+}
+.reset-btn {
+  padding: 8px 20px; border-radius: 8px; border: 2px solid var(--red);
+  background: transparent; color: var(--red); cursor: pointer; font-size: 0.9em;
+}
+.reset-btn:hover { background: var(--red); color: #fff; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px; }
+.empty-state .big-emoji { font-size: 3em; margin-bottom: 12px; }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.5em; }
+  .stats-bar { gap: 6px; }
+  .stat-card { min-width: 75px; padding: 8px 12px; }
+  .stat-card .number { font-size: 1.4em; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .flashcard, .learn-card { padding: 25px 18px; min-height: 280px; }
+  .match-grid { grid-template-columns: 1fr; }
+  .tabs { gap: 4px; }
+  .tab { padding: 7px 12px; font-size: 0.85em; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Cebuano / Bisaya</h1>
+  <p id="headerSubtitle">Мнемоника + Интервальные повторения + Активное запоминание</p>
+  <div style="margin-top:10px">
+    <button id="langRU" class="filter-btn active" onclick="setLang('ru')" style="font-weight:700">🇷🇺 RU</button>
+    <button id="langEN" class="filter-btn" onclick="setLang('en')" style="font-weight:700">🇬🇧 EN</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card"><div class="number" id="totalWords">0</div><div class="label">Всего</div></div>
+  <div class="stat-card learned"><div class="number" id="learnedWords">0</div><div class="label">Выучено</div></div>
+  <div class="stat-card due"><div class="number" id="dueWords">0</div><div class="label">Повторить</div></div>
+  <div class="stat-card streak"><div class="number" id="streakDays">0</div><div class="label">Серия</div></div>
+  <div class="stat-card combo"><div class="number" id="todayScore">0</div><div class="label">Сегодня</div></div>
+</div>
+
+<div class="progress-container">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 0 words learned</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="daily" onclick="switchTab('daily')">🎯 Сегодня</button>
+  <button class="tab" data-tab="learn" onclick="switchTab('learn')">📚 Учить</button>
+  <button class="tab" data-tab="review" onclick="switchTab('review')">🧠 Повторять</button>
+  <button class="tab" data-tab="quiz" onclick="switchTab('quiz')">✏️ Тест</button>
+  <button class="tab" data-tab="sentences" onclick="switchTab('sentences')">💬 Фразы</button>
+  <button class="tab" data-tab="browse" onclick="switchTab('browse')">📖 Словарь</button>
+  <button class="tab" data-tab="settings" onclick="switchTab('settings')">⚙️</button>
+</div>
+
+<!-- DAILY SESSION -->
+<div class="daily-container" id="dailyMode"></div>
+
+<!-- LEARN MODE -->
+<div class="learn-container" id="learnMode"></div>
+
+<!-- REVIEW (SRS) -->
+<div class="flashcard-container" id="reviewMode"></div>
+
+<!-- QUIZ -->
+<div class="quiz-container" id="quizMode"></div>
+
+<!-- SENTENCE BUILDER -->
+<div class="sentence-container" id="sentenceMode"></div>
+
+<!-- BROWSE -->
+<div id="browseMode" style="display:none">
+  <div class="filters" id="categoryFilters"></div>
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings-container" id="settingsMode"></div>
+
+<script>
+// ==================== WORD DATABASE ====================
+const WORDS = [
+  // === Местоимения ===
+  { id:1, cebuano:"Ako", pronunciation:"а-КО", english:"я / мне", emoji:"👤", category:"pronoun", mnemonic:"А-КО! — нокаут, это всё про МЕНЯ", example:"Ako si Juan.", exampleEn:"Я — Хуан." },
+  { id:2, cebuano:"Ikaw", pronunciation:"и-КАУ", english:"ты", emoji:"👉", category:"pronoun", mnemonic:"и-КАУ — ворона каркает на ТЕБЯ", example:"Ikaw ba ni?", exampleEn:"Это ты?" },
+  { id:3, cebuano:"Siya", pronunciation:"СИ-я", english:"он / она", emoji:"🧑", category:"pronoun", mnemonic:"СИ-я — сияет, как ОН/ОНА", example:"Siya maayo.", exampleEn:"Он/она хороший." },
+  { id:4, cebuano:"Kita", pronunciation:"ки-ТА", english:"мы (все)", emoji:"👥", category:"pronoun", mnemonic:"КИТА — как кит, МЫ все плывём вместе", example:"Kita tanan.", exampleEn:"Мы все." },
+  { id:5, cebuano:"Sila", pronunciation:"си-ЛА", english:"они", emoji:"👫", category:"pronoun", mnemonic:"СИ-ЛА — сила в тех, ОНИ сильные", example:"Sila didto.", exampleEn:"Они там." },
+
+  // === Базовые глаголы ===
+  { id:6, cebuano:"Gusto", pronunciation:"ГУС-то", english:"хотеть", emoji:"🤲", category:"verb", mnemonic:"ГУСТО — хочется так, аж густо!", example:"Gusto ko og tubig.", exampleEn:"Я хочу воды." },
+  { id:7, cebuano:"Aduna", pronunciation:"а-ДУ-на", english:"иметь", emoji:"✋", category:"verb", mnemonic:"а-ДУНА — у меня есть дюна (песчаная)", example:"Aduna koy kwarta.", exampleEn:"У меня есть деньги." },
+  { id:8, cebuano:"Lakaw", pronunciation:"ла-КАУ", english:"идти / ходить", emoji:"🚶", category:"verb", mnemonic:"ла-КАУ — корова (cow) ИДЁТ мимо", example:"Lakaw na ta.", exampleEn:"Пойдём." },
+  { id:9, cebuano:"Kaon", pronunciation:"КА-он", english:"есть (кушать)", emoji:"🍽️", category:"verb", mnemonic:"КА-он — каша на тарелке, пора КУШАТЬ", example:"Gusto ko mokaon.", exampleEn:"Я хочу есть." },
+  { id:10, cebuano:"Inom", pronunciation:"и-НОМ", english:"пить", emoji:"🥤", category:"verb", mnemonic:"и-НОМ — ном-ном, ПЬЁМ коктейль", example:"Inom og tubig.", exampleEn:"Пей воду." },
+
+  // === Вопросы + Да/Нет ===
+  { id:11, cebuano:"Unsa", pronunciation:"УН-са", english:"что", emoji:"❓", category:"question", mnemonic:"УН-СА — ун, ЧТО это за штука?", example:"Unsa ni?", exampleEn:"Что это?" },
+  { id:12, cebuano:"Diin", pronunciation:"ди-ИН", english:"где", emoji:"📍", category:"question", mnemonic:"ди-ИН — ГДЕ ты был? Дин-дон!", example:"Diin ka?", exampleEn:"Где ты?" },
+  { id:13, cebuano:"Kinsa", pronunciation:"кин-СА", english:"кто", emoji:"🤔", category:"question", mnemonic:"кин-СА — КТО тут такой кинул?", example:"Kinsa ka?", exampleEn:"Кто ты?" },
+  { id:14, cebuano:"Oo", pronunciation:"о-О", english:"да", emoji:"✅", category:"question", mnemonic:"О-О! — ДА, о да!", example:"Oo, gusto ko.", exampleEn:"Да, я хочу." },
+  { id:15, cebuano:"Dili", pronunciation:"ди-ЛИ", english:"нет / не", emoji:"❌", category:"question", mnemonic:"ди-ЛИ — удаЛИ, НЕТ, удали это!", example:"Dili ko gusto.", exampleEn:"Я не хочу." },
+
+  // === Базовые существительные ===
+  { id:16, cebuano:"Tubig", pronunciation:"ТУ-биг", english:"вода", emoji:"💧", category:"noun", mnemonic:"ТУ-биг — стакан ВОДЫ слишком большой!", example:"Hatag ko og tubig.", exampleEn:"Дай мне воды." },
+  { id:17, cebuano:"Pagkaon", pronunciation:"паг-КА-он", english:"еда", emoji:"🍲", category:"noun", mnemonic:"паг-КА-он — пакуй ЕДУ на тарелку", example:"Nindot ang pagkaon.", exampleEn:"Еда вкусная." },
+  { id:18, cebuano:"Balay", pronunciation:"ба-ЛАЙ", english:"дом", emoji:"🏠", category:"noun", mnemonic:"ба-ЛАЙ — балалайка стоит у ДОМА", example:"Dako ang balay.", exampleEn:"Дом большой." },
+  { id:19, cebuano:"Tawo", pronunciation:"ТА-во", english:"человек", emoji:"🧍", category:"noun", mnemonic:"ТА-ВО — тот вон ЧЕЛОВЕК", example:"Maayo nga tawo.", exampleEn:"Хороший человек." },
+  { id:20, cebuano:"Kwarta", pronunciation:"КВАР-та", english:"деньги", emoji:"💰", category:"noun", mnemonic:"КВАР-ТА — КВАРтира за ДЕНЬГИ", example:"Wala koy kwarta.", exampleEn:"У меня нет денег." },
+
+  // === Прилагательные ===
+  { id:21, cebuano:"Maayo", pronunciation:"ма-А-йо", english:"хороший", emoji:"👍", category:"adjective", mnemonic:"ма-А-ЙО — мой йо-йо трюк ХОРОШИЙ!", example:"Maayo ka.", exampleEn:"Ты хороший." },
+  { id:22, cebuano:"Dautan", pronunciation:"да-У-тан", english:"плохой", emoji:"👎", category:"adjective", mnemonic:"да-У-ТАН — даутан, сомневаешься = ПЛОХО", example:"Dautan na.", exampleEn:"Это плохо." },
+  { id:23, cebuano:"Dako", pronunciation:"да-КО", english:"большой", emoji:"🐘", category:"adjective", mnemonic:"да-КО — да КОнечно БОЛЬШОЙ!", example:"Dako kaayo.", exampleEn:"Очень большой." },
+  { id:24, cebuano:"Gamay", pronunciation:"га-МАЙ", english:"маленький", emoji:"🐜", category:"adjective", mnemonic:"га-МАЙ — гамак МАЙенький, МАЛЕНЬКИЙ", example:"Gamay ra.", exampleEn:"Просто маленький." },
+  { id:25, cebuano:"Daghan", pronunciation:"ДАГ-хан", english:"много", emoji:"📦", category:"adjective", mnemonic:"ДАГ-хан — Хан накопал МНОГО сокровищ", example:"Daghan og tawo.", exampleEn:"Много людей." },
+
+  // === Ещё глаголы ===
+  { id:26, cebuano:"Hatag", pronunciation:"ха-ТАГ", english:"дать", emoji:"🎁", category:"verb", mnemonic:"ха-ТАГ — хештег #ДАЙ, тегни чтобы ДАТЬ", example:"Hatag ko ani.", exampleEn:"Дай мне это." },
+  { id:27, cebuano:"Kuha", pronunciation:"КУ-ха", english:"взять / получить", emoji:"🤏", category:"verb", mnemonic:"КУ-ха — ку-ку! ха! ВОЗЬМУ это!", example:"Kuha og usa.", exampleEn:"Возьми одну." },
+  { id:28, cebuano:"Ari", pronunciation:"а-РИ", english:"иди сюда", emoji:"🫳", category:"verb", mnemonic:"а-РИ — а ну ИДИ СЮДА к рифу!", example:"Ari diri.", exampleEn:"Иди сюда." },
+  { id:29, cebuano:"Kahibalo", pronunciation:"ка-хи-БА-ло", english:"знать", emoji:"🧠", category:"verb", mnemonic:"ка-хи-БА-ЛО — он ЗНАЕТ что внизу (below)", example:"Kahibalo ko.", exampleEn:"Я знаю." },
+  { id:30, cebuano:"Mahimo", pronunciation:"ма-ХИ-мо", english:"можно / мочь", emoji:"💪", category:"verb", mnemonic:"ма-ХИ-мо — МА, хитрый! МОЖНО ещё!", example:"Mahimo ba?", exampleEn:"Можно?" },
+
+  // === Связки ===
+  { id:31, cebuano:"Ug", pronunciation:"уг", english:"и", emoji:"🔗", category:"connector", mnemonic:"УГ — пещерный человек: это И то", example:"Tubig ug pagkaon.", exampleEn:"Вода и еда." },
+  { id:32, cebuano:"Wala", pronunciation:"ва-ЛА", english:"нет / нету", emoji:"🚫", category:"connector", mnemonic:"ва-ЛА — вуаля наоборот — НИЧЕГО нету!", example:"Wala na.", exampleEn:"Уже нету." },
+  { id:33, cebuano:"Dinhi", pronunciation:"дин-ХИ", english:"здесь", emoji:"📌", category:"connector", mnemonic:"дин-ХИ — он обедает (дин) прямо ЗДЕСЬ", example:"Dinhi ko.", exampleEn:"Я здесь." },
+  { id:34, cebuano:"Didto", pronunciation:"дид-ТО", english:"там", emoji:"👀", category:"connector", mnemonic:"дид-ТО — что он делал ТАМ?", example:"Didto siya.", exampleEn:"Он/она там." },
+  { id:35, cebuano:"Karon", pronunciation:"ка-РОН", english:"сейчас", emoji:"⏰", category:"connector", mnemonic:"ка-РОН — заведи (car on) машину СЕЙЧАС!", example:"Karon na.", exampleEn:"Прямо сейчас." },
+
+  // === Числа ===
+  { id:36, cebuano:"Usa", pronunciation:"у-СА", english:"один (1)", emoji:"1️⃣", category:"number", mnemonic:"у-СА — США (USA) номер ОДИН", example:"Usa ka buok.", exampleEn:"Одна штука." },
+  { id:37, cebuano:"Duha", pronunciation:"ду-ХА", english:"два (2)", emoji:"2️⃣", category:"number", mnemonic:"ду-ХА — ДВА смеха: ха-ха!", example:"Duha ka tawo.", exampleEn:"Два человека." },
+  { id:38, cebuano:"Tulo", pronunciation:"ту-ЛО", english:"три (3)", emoji:"3️⃣", category:"number", mnemonic:"ту-ЛО — ТРИ тулупа", example:"Tulo ka adlaw.", exampleEn:"Три дня." },
+  { id:39, cebuano:"Upat", pronunciation:"у-ПАТ", english:"четыре (4)", emoji:"4️⃣", category:"number", mnemonic:"у-ПАТ — погладь (pat) ЧЕТЫРЁХ собак", example:"Upat ka balay.", exampleEn:"Четыре дома." },
+  { id:40, cebuano:"Lima", pronunciation:"ли-МА", english:"пять (5)", emoji:"5️⃣", category:"number", mnemonic:"ли-МА — ПЯТЬ пальцев, город Лима", example:"Lima ka minuto.", exampleEn:"Пять минут." },
+  { id:41, cebuano:"Unom", pronunciation:"у-НОМ", english:"шесть (6)", emoji:"6️⃣", category:"number", mnemonic:"у-НОМ — ШЕСТЬ печенек ном-ном", example:"Unom na sila.", exampleEn:"Их шестеро." },
+  { id:42, cebuano:"Pito", pronunciation:"пи-ТО", english:"семь (7)", emoji:"7️⃣", category:"number", mnemonic:"пи-ТО — СЕМЬ раз ударил палец о порог (toe)", example:"Pito ka oras.", exampleEn:"Семь часов." },
+  { id:43, cebuano:"Walo", pronunciation:"ва-ЛО", english:"восемь (8)", emoji:"8️⃣", category:"number", mnemonic:"ва-ЛО — ВОСЕМЬ картин на стене (wall)", example:"Walo ka bulan.", exampleEn:"Восемь месяцев." },
+  { id:44, cebuano:"Siyam", pronunciation:"си-ЯМ", english:"девять (9)", emoji:"9️⃣", category:"number", mnemonic:"си-ЯМ — ДЕВЯТЬ ямсов (бататов) в ряд", example:"Siyam ka tuig.", exampleEn:"Девять лет." },
+  { id:45, cebuano:"Napulo", pronunciation:"на-ПУ-ло", english:"десять (10)", emoji:"🔟", category:"number", mnemonic:"на-ПУ-ло — ДЕСЯТЬ человек в пуле (бассейне)", example:"Napulo ka pesos.", exampleEn:"Десять песо." },
+
+  // === Время ===
+  { id:46, cebuano:"Gahapon", pronunciation:"га-ХА-пон", english:"вчера", emoji:"⬅️", category:"noun", mnemonic:"га-ХА-пон — что произошло (happen) ВЧЕРА?", example:"Gahapon pa.", exampleEn:"Ещё со вчера." },
+  { id:47, cebuano:"Ugma", pronunciation:"уг-МА", english:"завтра", emoji:"➡️", category:"noun", mnemonic:"уг-МА — скажу маме ЗАВТРА", example:"Ugma na lang.", exampleEn:"Лучше завтра." },
+  { id:48, cebuano:"Buntag", pronunciation:"бун-ТАГ", english:"утро", emoji:"🌅", category:"noun", mnemonic:"бун-ТАГ — тегни булочку УТРОМ", example:"Maayong buntag.", exampleEn:"Доброе утро." },
+  { id:49, cebuano:"Gabii", pronunciation:"га-БИ", english:"ночь / вечер", emoji:"🌙", category:"noun", mnemonic:"га-БИ — пчёлы (bee) спят НОЧЬЮ", example:"Maayong gabii.", exampleEn:"Добрый вечер." },
+  { id:50, cebuano:"Adlaw", pronunciation:"ад-ЛАУ", english:"день / солнце", emoji:"☀️", category:"noun", mnemonic:"ад-ЛАУ — каждый ДЕНЬ новый закон (law)", example:"Nindot nga adlaw.", exampleEn:"Хороший день." },
+
+  // === Фразы ===
+  { id:51, cebuano:"Salamat", pronunciation:"са-ЛА-мат", english:"спасибо", emoji:"🙏", category:"phrase", mnemonic:"са-ЛА-МАТ — СПАСИБО за салями!", example:"Salamat kaayo.", exampleEn:"Большое спасибо." },
+  { id:52, cebuano:"Kumusta", pronunciation:"ку-МУС-та", english:"как дела?", emoji:"👋", category:"phrase", mnemonic:"ку-МУС-та — как \"como esta\" по-испански", example:"Kumusta ka?", exampleEn:"Как у тебя дела?" },
+  { id:53, cebuano:"Palihug", pronunciation:"па-ли-ХУГ", english:"пожалуйста", emoji:"🤝", category:"phrase", mnemonic:"па-ли-ХУГ — ПОЖАЛУЙСТА, обними (hug) меня", example:"Palihug tabang.", exampleEn:"Пожалуйста, помоги." },
+  { id:54, cebuano:"Pasayloa ko", pronunciation:"па-сай-ЛО-а ко", english:"извините / прости", emoji:"😔", category:"phrase", mnemonic:"па-САЙЛО — вздох (sigh), ПРОСТИ", example:"Pasayloa ko, dili ko kahibalo.", exampleEn:"Простите, я не знаю." },
+  { id:55, cebuano:"Maayong buntag", pronunciation:"ма-А-йонг бун-ТАГ", english:"доброе утро", emoji:"🌞", category:"phrase", mnemonic:"маайо (хорошо) + бунтаг (утро) = ДОБРОЕ УТРО", example:"Maayong buntag sa tanan.", exampleEn:"Доброе утро всем." },
+
+  // === Места ===
+  { id:56, cebuano:"Merkado", pronunciation:"мер-КА-до", english:"рынок", emoji:"🏪", category:"noun", mnemonic:"мер-КА-до — как меркадо по-испански! РЫНОК", example:"Adto ta sa merkado.", exampleEn:"Пойдём на рынок." },
+  { id:57, cebuano:"Eskwelahan", pronunciation:"эс-кве-ЛА-хан", english:"школа", emoji:"🏫", category:"noun", mnemonic:"эс-КВЕЛА-хан — звучит как ШКОЛА", example:"Naa ko sa eskwelahan.", exampleEn:"Я в школе." },
+  { id:58, cebuano:"Simbahan", pronunciation:"сим-БА-хан", english:"церковь", emoji:"⛪", category:"noun", mnemonic:"сим-БА-хан — тарелки (cymbals) в ЦЕРКВИ", example:"Adto sa simbahan.", exampleEn:"Иди в церковь." },
+  { id:59, cebuano:"Dagat", pronunciation:"да-ГАТ", english:"море / океан", emoji:"🌊", category:"noun", mnemonic:"да-ГАТ — я добрался до МОРЯ!", example:"Nindot ang dagat.", exampleEn:"Море красивое." },
+  { id:60, cebuano:"Bukid", pronunciation:"бу-КИД", english:"гора / ферма", emoji:"⛰️", category:"noun", mnemonic:"бу-КИД — ребёнок (kid) на ГОРЕ", example:"Tua sa bukid.", exampleEn:"Там на горе." },
+
+  // === Семья ===
+  { id:61, cebuano:"Mama", pronunciation:"ма-МА", english:"мама", emoji:"👩", category:"noun", mnemonic:"Универсально! МАМА = МАМА", example:"Naa si Mama.", exampleEn:"Мама здесь." },
+  { id:62, cebuano:"Papa", pronunciation:"па-ПА", english:"папа", emoji:"👨", category:"noun", mnemonic:"Универсально! ПАПА = ПАПА", example:"Diin si Papa?", exampleEn:"Где папа?" },
+  { id:63, cebuano:"Anak", pronunciation:"А-нак", english:"ребёнок", emoji:"👶", category:"noun", mnemonic:"А-НАК — РЕБЁНОК стучит (knock)", example:"Ang anak nako.", exampleEn:"Мой ребёнок." },
+  { id:64, cebuano:"Igsoon", pronunciation:"иг-СО-он", english:"брат / сестра", emoji:"👦👧", category:"noun", mnemonic:"иг-СУН — БРАТ/СЕСТРА придёт скоро (soon)", example:"Ang igsoon nako.", exampleEn:"Мой брат/сестра." },
+  { id:65, cebuano:"Asawa", pronunciation:"а-СА-ва", english:"супруг(а)", emoji:"💑", category:"noun", mnemonic:"а-СА-ва — я увидел (saw) СУПРУГУ", example:"Ang asawa nako.", exampleEn:"Мой/моя супруг(а)." },
+
+  // === Тело ===
+  { id:66, cebuano:"Ulo", pronunciation:"у-ЛО", english:"голова", emoji:"🗣️", category:"noun", mnemonic:"у-ЛО — наклони ГОЛОВУ ниже (low)", example:"Sakit ang ulo.", exampleEn:"Голова болит." },
+  { id:67, cebuano:"Kamot", pronunciation:"ка-МОТ", english:"рука", emoji:"✋", category:"noun", mnemonic:"ка-МОТ — пульт (remote) в РУКЕ", example:"Hugaw ang kamot.", exampleEn:"Рука грязная." },
+  { id:68, cebuano:"Tiil", pronunciation:"ти-ИЛ", english:"нога / стопа", emoji:"🦶", category:"noun", mnemonic:"ТИ-ИЛ — пятка (heel) на НОГЕ", example:"Sakit ang tiil.", exampleEn:"Нога болит." },
+  { id:69, cebuano:"Mata", pronunciation:"МА-та", english:"глаз", emoji:"👁️", category:"noun", mnemonic:"МА-ТА — мат-а, смотреть ГЛАЗАМИ", example:"Nindot ang mata.", exampleEn:"Красивые глаза." },
+  { id:70, cebuano:"Baba", pronunciation:"БА-ба", english:"рот", emoji:"👄", category:"noun", mnemonic:"БА-ба — малыш бабает РТОМ", example:"Abli ang baba.", exampleEn:"Открой рот." },
+
+  // === Еда ===
+  { id:71, cebuano:"Kan-on", pronunciation:"кан-ОН", english:"рис (варёный)", emoji:"🍚", category:"noun", mnemonic:"кан-ОН — банка (can) полная РИСА", example:"Gusto ko og kan-on.", exampleEn:"Я хочу рис." },
+  { id:72, cebuano:"Isda", pronunciation:"ис-ДА", english:"рыба", emoji:"🐟", category:"noun", mnemonic:"ис-ДА — это (is) РЫБА? Да!", example:"Lami ang isda.", exampleEn:"Рыба вкусная." },
+  { id:73, cebuano:"Manok", pronunciation:"ма-НОК", english:"курица", emoji:"🐔", category:"noun", mnemonic:"ма-НОК — КУРИЦА постучала (knock)", example:"Kaon og manok.", exampleEn:"Ешь курицу." },
+  { id:74, cebuano:"Prutas", pronunciation:"ПРУ-тас", english:"фрукты", emoji:"🍎", category:"noun", mnemonic:"ПРУ-тас — звучит как ФРУКТ!", example:"Gusto ko og prutas.", exampleEn:"Я хочу фрукты." },
+  { id:75, cebuano:"Kape", pronunciation:"ка-ПЕ", english:"кофе", emoji:"☕", category:"noun", mnemonic:"ка-ПЕ — КОФЕ в кафе", example:"Inom og kape.", exampleEn:"Пей кофе." },
+
+  // === Ещё глаголы ===
+  { id:76, cebuano:"Sulti", pronunciation:"сул-ТИ", english:"говорить / сказать", emoji:"🗣️", category:"verb", mnemonic:"сул-ТИ — СКАЖИ мне за чаем (tea)", example:"Sulti og Bisaya.", exampleEn:"Говори на бисая." },
+  { id:77, cebuano:"Trabaho", pronunciation:"тра-БА-хо", english:"работать", emoji:"💼", category:"verb", mnemonic:"тра-БА-хо — trabajo, как по-испански РАБОТА", example:"Nag-trabaho ko.", exampleEn:"Я работаю." },
+  { id:78, cebuano:"Palit", pronunciation:"ПА-лит", english:"купить", emoji:"🛒", category:"verb", mnemonic:"ПА-ЛИТ — мой друг (pal) КУПИЛ это", example:"Palit og pagkaon.", exampleEn:"Купи еду." },
+  { id:79, cebuano:"Balik", pronunciation:"БА-лик", english:"вернуться", emoji:"🔙", category:"verb", mnemonic:"БА-ЛИК — мяч отскочил (ball) ОБРАТНО", example:"Balik ko ugma.", exampleEn:"Я вернусь завтра." },
+  { id:80, cebuano:"Tulog", pronunciation:"ту-ЛОГ", english:"спать", emoji:"😴", category:"verb", mnemonic:"ту-ЛОГ — СПАТЬ как бревно (log)", example:"Gusto ko matulog.", exampleEn:"Я хочу спать." },
+
+  // === Ещё прилагательные ===
+  { id:81, cebuano:"Init", pronunciation:"и-НИТ", english:"горячий", emoji:"🔥", category:"adjective", mnemonic:"и-НИТ — ignite (зажечь) = ГОРЯЧИЙ!", example:"Init kaayo.", exampleEn:"Очень горячо." },
+  { id:82, cebuano:"Bugnaw", pronunciation:"буг-НАУ", english:"холодный", emoji:"❄️", category:"adjective", mnemonic:"буг-НАУ — жук (bug) замёрз, ХОЛОДНО", example:"Bugnaw ang tubig.", exampleEn:"Вода холодная." },
+  { id:83, cebuano:"Bag-o", pronunciation:"баг-О", english:"новый", emoji:"✨", category:"adjective", mnemonic:"баг-О — о, НОВАЯ сумка (bag)!", example:"Bag-o ni.", exampleEn:"Это новое." },
+  { id:84, cebuano:"Daan", pronunciation:"да-АН", english:"старый (вещь)", emoji:"🏚️", category:"adjective", mnemonic:"да-АН — с рассвета (dawn) времён = СТАРЫЙ", example:"Daan na.", exampleEn:"Уже старое." },
+  { id:85, cebuano:"Paspas", pronunciation:"пас-ПАС", english:"быстрый", emoji:"⚡", category:"adjective", mnemonic:"пас-ПАС — ПАС-ПАС, БЫСТРЫЙ пас!", example:"Paspas kaayo.", exampleEn:"Очень быстро." },
+  { id:86, cebuano:"Hinay", pronunciation:"хи-НАЙ", english:"медленный", emoji:"🐌", category:"adjective", mnemonic:"хи-НАЙ — конь говорит НАЙ и идёт МЕДЛЕННО", example:"Hinay lang.", exampleEn:"Помедленнее." },
+  { id:87, cebuano:"Gwapa", pronunciation:"ГВА-па", english:"красивая (ж)", emoji:"💃", category:"adjective", mnemonic:"ГВА-па — guapa по-испански = КРАСИВАЯ", example:"Gwapa kaayo siya.", exampleEn:"Она очень красивая." },
+  { id:88, cebuano:"Gwapo", pronunciation:"ГВА-по", english:"красивый (м)", emoji:"🕺", category:"adjective", mnemonic:"ГВА-по — guapo по-испански = КРАСИВЫЙ", example:"Gwapo kaayo siya.", exampleEn:"Он очень красивый." },
+  { id:89, cebuano:"Nindot", pronunciation:"нин-ДОТ", english:"красивый / классный", emoji:"🌺", category:"adjective", mnemonic:"нин-ДОТ — соедини точки (dots) = КРАСИВО", example:"Nindot kaayo!", exampleEn:"Очень классно!" },
+  { id:90, cebuano:"Lisud", pronunciation:"ли-СУД", english:"сложный / трудный", emoji:"😣", category:"adjective", mnemonic:"ли-СУД — попасть под СУД это СЛОЖНО", example:"Lisud kaayo.", exampleEn:"Очень сложно." },
+
+  // === Ещё вопросы ===
+  { id:91, cebuano:"Pila", pronunciation:"пи-ЛА", english:"сколько", emoji:"💲", category:"question", mnemonic:"пи-ЛА — СКОЛЬКО пил (pillars)?", example:"Pila ni?", exampleEn:"Сколько стоит?" },
+  { id:92, cebuano:"Ngano", pronunciation:"нга-НО", english:"почему", emoji:"🤷", category:"question", mnemonic:"нга-НО — ПОЧЕМУ так мелко (nano)?", example:"Ngano man?", exampleEn:"Почему?" },
+  { id:93, cebuano:"Kanus-a", pronunciation:"ка-нус-А", english:"когда", emoji:"📅", category:"question", mnemonic:"ка-нус-А — КОГДА каноэ приплывёт?", example:"Kanus-a ka moabot?", exampleEn:"Когда ты приедешь?" },
+
+  // === Ещё связки ===
+  { id:94, cebuano:"Gikan", pronunciation:"ги-КАН", english:"из / от", emoji:"🏁", category:"connector", mnemonic:"ги-КАН — откуда эта банка (can)? ОТКУДА?", example:"Gikan ko sa balay.", exampleEn:"Я пришёл из дома." },
+  { id:95, cebuano:"Para", pronunciation:"ПА-ра", english:"для / стоп", emoji:"🛑", category:"connector", mnemonic:"ПА-ра — как по-испански ДЛЯ / СТОП", example:"Para nimo ni.", exampleEn:"Это для тебя." },
+  { id:96, cebuano:"Sa", pronunciation:"са", english:"в / на / к", emoji:"📍", category:"connector", mnemonic:"СА — маленькое слово: В, НА, К", example:"Naa ko sa balay.", exampleEn:"Я дома (в доме)." },
+  { id:97, cebuano:"Ang", pronunciation:"анг", english:"(определённый артикль)", emoji:"👆", category:"connector", mnemonic:"АНГ — как угол (angle), указывает на ЭТО", example:"Ang balay dako.", exampleEn:"(Этот) дом большой." },
+  { id:98, cebuano:"Mga", pronunciation:"ма-НГА", english:"(множ. число)", emoji:"📦", category:"connector", mnemonic:"ма-НГА — как манга, их МНОГО", example:"Ang mga tawo.", exampleEn:"(Эти) люди." },
+  { id:99, cebuano:"Naa", pronunciation:"на-А", english:"есть / существует", emoji:"✅", category:"connector", mnemonic:"на-А — нет, подожди, оно СУЩЕСТВУЕТ!", example:"Naa bay tubig?", exampleEn:"Есть вода?" },
+  { id:100, cebuano:"Bitaw", pronunciation:"би-ТАУ", english:"правда / да уж", emoji:"💯", category:"connector", mnemonic:"би-ТАУ — ПРАВДА, пчела (bee) ужалила!", example:"Bitaw, maayo.", exampleEn:"Правда, хорошо." },
+
+  // === Дополнительные ===
+  { id:101, cebuano:"Tanan", pronunciation:"та-НАН", english:"все / всё", emoji:"🌍", category:"adjective", mnemonic:"та-НАН — бабушка (нан) знает ВСЁ", example:"Tanan tao.", exampleEn:"Все люди." },
+  { id:102, cebuano:"Walay", pronunciation:"ва-ЛАЙ", english:"без / нет (+сущ.)", emoji:"🚫", category:"connector", mnemonic:"ва-ЛАЙ — это ложь (lie), тут НИЧЕГО нет", example:"Walay problema.", exampleEn:"Без проблем." },
+  { id:103, cebuano:"Unsaon", pronunciation:"ун-СА-он", english:"как (сделать)", emoji:"🔧", category:"question", mnemonic:"ун-СА-он — КАК включить пилу (saw)?", example:"Unsaon man ni?", exampleEn:"Как это сделать?" },
+  { id:104, cebuano:"Tabang", pronunciation:"та-БАНГ", english:"помощь", emoji:"🆘", category:"verb", mnemonic:"та-БАНГ — стукни (bang) по столу: ПОМОГИТЕ!", example:"Tabang ko!", exampleEn:"Помогите мне!" },
+  { id:105, cebuano:"Higala", pronunciation:"хи-ГА-ла", english:"друг", emoji:"🤜🤛", category:"noun", mnemonic:"хи-ГА-ла — он мой ДРУГ на гала-вечере", example:"Higala nako.", exampleEn:"Мой друг." },
+];
+
+// Предложения для конструктора
+const SENTENCES = [
+  { words: ["Gusto", "ko", "og", "tubig"], english: "Я хочу воды", hint: "я + хочу + воды" },
+  { words: ["Diin", "ang", "balay"], english: "Где дом?", hint: "где + (артикль) + дом" },
+  { words: ["Maayo", "ang", "pagkaon"], english: "Еда вкусная", hint: "хороший + (артикль) + еда" },
+  { words: ["Ako", "dinhi", "karon"], english: "Я здесь сейчас", hint: "я + здесь + сейчас" },
+  { words: ["Wala", "koy", "kwarta"], english: "У меня нет денег", hint: "нет + я + деньги" },
+  { words: ["Hatag", "ko", "og", "tubig"], english: "Дай мне воды", hint: "дай + мне + воды" },
+  { words: ["Unsa", "gusto", "nimo"], english: "Что ты хочешь?", hint: "что + хочешь + ты" },
+  { words: ["Siya", "didto", "sa", "balay"], english: "Он/она там, дома", hint: "он + там + в + доме" },
+  { words: ["Daghan", "og", "tawo"], english: "Много людей", hint: "много + людей" },
+  { words: ["Gusto", "ko", "mokaon"], english: "Я хочу есть", hint: "я + хочу + есть" },
+  { words: ["Nindot", "ang", "dagat"], english: "Море красивое", hint: "красивый + (артикль) + море" },
+  { words: ["Diin", "ka", "karon"], english: "Где ты сейчас?", hint: "где + ты + сейчас" },
+  { words: ["Lakaw", "na", "ta"], english: "Пойдём", hint: "идти + уже + мы" },
+  { words: ["Inom", "og", "kape"], english: "Пей кофе", hint: "пить + кофе" },
+  { words: ["Pila", "ang", "kwarta"], english: "Сколько денег?", hint: "сколько + (артикль) + деньги" },
+];
+
+// ==================== ENGLISH TRANSLATIONS ====================
+const EN_DATA = {
+  1:{en:"I / me",pron:"ah-KOH",mn:"\"Ah, KO!\" — knock-out punch, it's all about ME",ex:"I am Juan."},
+  2:{en:"you",pron:"ee-KAW",mn:"\"ee-KAW\" — a crow cawing AT YOU",ex:"Is this you?"},
+  3:{en:"he / she",pron:"SEE-yah",mn:"\"See ya!\" — waving goodbye to HIM/HER",ex:"He/she is good."},
+  4:{en:"we (all of us)",pron:"kee-TAH",mn:"\"Kita\" like a kite — WE all fly it together",ex:"All of us."},
+  5:{en:"they",pron:"see-LAH",mn:"\"See-la\" — look, THEY are over there",ex:"They are there."},
+  6:{en:"want",pron:"GOOS-toh",mn:"\"Gusto\" like English gusto — you WANT it!",ex:"I want water."},
+  7:{en:"have",pron:"ah-DOO-nah",mn:"\"a-DUNE-a\" — I HAVE a sand dune",ex:"I have money."},
+  8:{en:"go / walk",pron:"lah-KAW",mn:"\"la-COW\" — a cow is WALKING away",ex:"Let's go."},
+  9:{en:"eat",pron:"KAH-on",mn:"\"KAH-on\" — cow ON the plate, time to EAT",ex:"I want to eat."},
+  10:{en:"drink",pron:"ee-NOM",mn:"\"ee-NOM\" — nom nom DRINKING a smoothie",ex:"Drink water."},
+  11:{en:"what",pron:"OON-sah",mn:"\"UNSAfe!\" — WHAT is unsafe?!",ex:"What is this?"},
+  12:{en:"where",pron:"dee-IN",mn:"\"dee-IN\" — WHERE did you DIG IN?",ex:"Where are you?"},
+  13:{en:"who",pron:"keen-SAH",mn:"\"keen-SAH\" — WHO is so keen?",ex:"Who are you?"},
+  14:{en:"yes",pron:"oh-OH",mn:"\"Oh-OH!\" — YES, oh yes!",ex:"Yes, I want it."},
+  15:{en:"no / not",pron:"dee-LEE",mn:"\"dee-LEE\" — DELETE — NO, delete that!",ex:"I don't want it."},
+  16:{en:"water",pron:"TOO-big",mn:"\"TOO-big\" — glass of WATER is TOO BIG!",ex:"Give me water."},
+  17:{en:"food",pron:"pag-KAH-on",mn:"\"pag-KAH-on\" — PACK ON more FOOD",ex:"The food is nice."},
+  18:{en:"house",pron:"bah-LIE",mn:"\"ballet\" — ballerina dances in the HOUSE",ex:"The house is big."},
+  19:{en:"person",pron:"TAH-woh",mn:"\"tower\" — a PERSON tall as a tower",ex:"A good person."},
+  20:{en:"money",pron:"KWAR-tah",mn:"\"quarter\" — a quarter coin = MONEY",ex:"I have no money."},
+  21:{en:"good",pron:"mah-AH-yoh",mn:"\"my-YO\" — my yo-yo trick is GOOD!",ex:"You are good."},
+  22:{en:"bad",pron:"dah-OO-tan",mn:"\"doubt-an\" — when you DOUBT, it's BAD",ex:"That's bad."},
+  23:{en:"big",pron:"dah-KOH",mn:"\"duck-OH\" — OH what a BIG duck!",ex:"Very big."},
+  24:{en:"small",pron:"gah-MY",mn:"\"gummy\" — a gummy bear is SMALL",ex:"Just small."},
+  25:{en:"many / much",pron:"DAG-han",mn:"\"dug-HAN\" — Han Solo DUG up MANY treasures",ex:"Many people."},
+  26:{en:"give",pron:"hah-TAG",mn:"\"ha-TAG\" — hashtag #GIVE",ex:"Give me this."},
+  27:{en:"take / get",pron:"KOO-hah",mn:"\"cool-HA!\" — ha! I'll TAKE it!",ex:"Take one."},
+  28:{en:"come (here)",pron:"ah-REE",mn:"\"a-REE\" — COME HERE to the reef!",ex:"Come here."},
+  29:{en:"know",pron:"kah-hee-BAH-loh",mn:"\"ka-he-BELOW\" — he KNOWS what's BELOW",ex:"I know."},
+  30:{en:"can / possible",pron:"mah-HEE-moh",mn:"\"ma-HE-mo\" — he CAN do more!",ex:"Is it possible?"},
+  31:{en:"and",pron:"oog",mn:"\"oog\" — caveman: this AND that",ex:"Water and food."},
+  32:{en:"none / don't have",pron:"wah-LAH",mn:"\"voila\" backwards — NOTHING here!",ex:"It's gone."},
+  33:{en:"here",pron:"din-HEE",mn:"\"din-HE\" — he's dining right HERE",ex:"I'm here."},
+  34:{en:"there",pron:"did-TOH",mn:"\"DID-to\" — what DID he do THERE?",ex:"He/she is there."},
+  35:{en:"now",pron:"kah-RON",mn:"\"car-ON\" — turn the car ON, NOW!",ex:"Right now."},
+  36:{en:"one (1)",pron:"oo-SAH",mn:"\"USA\" — the USA is number ONE",ex:"One piece."},
+  37:{en:"two (2)",pron:"doo-HAH",mn:"\"do-HA\" — TWO laughs: ha ha!",ex:"Two people."},
+  38:{en:"three (3)",pron:"too-LOH",mn:"\"two-LOW\" — THREE is two plus LOW",ex:"Three days."},
+  39:{en:"four (4)",pron:"oo-PAT",mn:"\"ooh-PAT\" — pat FOUR dogs",ex:"Four houses."},
+  40:{en:"five (5)",pron:"lee-MAH",mn:"\"Lima\" — FIVE fingers, Lima city",ex:"Five minutes."},
+  41:{en:"six (6)",pron:"oo-NOM",mn:"\"oo-NOM\" — SIX cookies to nom on",ex:"There are six of them."},
+  42:{en:"seven (7)",pron:"pee-TOH",mn:"\"pee-TOE\" — SEVEN toe stubs",ex:"Seven hours."},
+  43:{en:"eight (8)",pron:"wah-LOH",mn:"\"wall-OH\" — EIGHT pictures on the WALL",ex:"Eight months."},
+  44:{en:"nine (9)",pron:"see-YAM",mn:"\"see-YAM\" — NINE yams in a row",ex:"Nine years."},
+  45:{en:"ten (10)",pron:"nah-POO-loh",mn:"\"nah-POOL\" — TEN people in the pool",ex:"Ten pesos."},
+  46:{en:"yesterday",pron:"gah-HAH-pon",mn:"\"ga-HAPPEN\" — what HAPPENED YESTERDAY?",ex:"Since yesterday."},
+  47:{en:"tomorrow",pron:"oog-MAH",mn:"\"oog-MA\" — tell mom tomorrow",ex:"Just tomorrow."},
+  48:{en:"morning",pron:"boon-TAG",mn:"\"bun-TAG\" — TAG your bun in the MORNING",ex:"Good morning."},
+  49:{en:"night / evening",pron:"gah-BEE",mn:"\"gah-BEE\" — bees sleep at NIGHT",ex:"Good evening."},
+  50:{en:"day / sun",pron:"ad-LAW",mn:"\"add-LAW\" — add a LAW for each DAY",ex:"Nice day."},
+  51:{en:"thank you",pron:"sah-LAH-mat",mn:"\"salami\" — THANK YOU for the salami!",ex:"Thank you very much."},
+  52:{en:"how are you?",pron:"koo-MOOS-tah",mn:"Spanish \"como esta\" — HOW ARE YOU?",ex:"How are you?"},
+  53:{en:"please",pron:"pah-lee-HOOG",mn:"\"pa-lee-HUG\" — PLEASE give me a hug",ex:"Please help."},
+  54:{en:"excuse me / sorry",pron:"pah-sigh-LOH-ah koh",mn:"\"pa-SIGH-low\" — SIGH, I'm SORRY",ex:"Sorry, I don't know."},
+  55:{en:"good morning",pron:"mah-AH-yong boon-TAG",mn:"maayo (good) + buntag (morning)",ex:"Good morning to everyone."},
+  56:{en:"market",pron:"mer-KAH-doh",mn:"\"mercado\" — Spanish! MARKET",ex:"Let's go to the market."},
+  57:{en:"school",pron:"es-kweh-LAH-han",mn:"\"es-SCHOOL-a-han\" — sounds like SCHOOL",ex:"I'm at school."},
+  58:{en:"church",pron:"sim-BAH-han",mn:"\"sim-BAHA\" — cymbals in the CHURCH",ex:"Go to church."},
+  59:{en:"sea / ocean",pron:"dah-GAT",mn:"\"da-GOT\" — I GOT to the SEA!",ex:"The sea is beautiful."},
+  60:{en:"mountain / farm",pron:"boo-KID",mn:"\"book-KID\" — a KID on the MOUNTAIN",ex:"Over at the mountain."},
+  61:{en:"mother",pron:"mah-MAH",mn:"Universal! MAMA = MOTHER",ex:"Mom is here."},
+  62:{en:"father",pron:"pah-PAH",mn:"Universal! PAPA = FATHER",ex:"Where is Dad?"},
+  63:{en:"child",pron:"AH-nak",mn:"\"a-KNOCK\" — a CHILD knocks",ex:"My child."},
+  64:{en:"sibling",pron:"ig-SO-on",mn:"\"ig-SOON\" — SIBLING comes SOON",ex:"My sibling."},
+  65:{en:"spouse",pron:"ah-SAH-wah",mn:"\"ah-SAW-a\" — I SAW my SPOUSE",ex:"My spouse."},
+  66:{en:"head",pron:"oo-LOH",mn:"\"ooh-LOW\" — bow your HEAD LOW",ex:"The head hurts."},
+  67:{en:"hand",pron:"kah-MOT",mn:"\"ka-MOTE\" — a remote in your HAND",ex:"The hand is dirty."},
+  68:{en:"foot / leg",pron:"tee-IL",mn:"\"TEEL\" — your heel on your FOOT",ex:"The foot hurts."},
+  69:{en:"eye",pron:"MAH-tah",mn:"\"matar\" — see with EYES",ex:"Beautiful eyes."},
+  70:{en:"mouth",pron:"BAH-bah",mn:"\"baba\" — baby babbling with MOUTH",ex:"Open the mouth."},
+  71:{en:"rice (cooked)",pron:"kan-ON",mn:"\"can-ON\" — a can of RICE",ex:"I want rice."},
+  72:{en:"fish",pron:"is-DAH",mn:"\"is-DA\" — is that a FISH?",ex:"The fish is delicious."},
+  73:{en:"chicken",pron:"mah-NOK",mn:"\"ma-KNOCK\" — CHICKEN knocked",ex:"Eat chicken."},
+  74:{en:"fruit",pron:"PROO-tas",mn:"\"FRUIT-as\" — sounds like FRUIT!",ex:"I want fruit."},
+  75:{en:"coffee",pron:"kah-PEH",mn:"\"cafe\" — COFFEE at the cafe",ex:"Drink coffee."},
+  76:{en:"say / speak",pron:"sool-TEE",mn:"\"soul-TEA\" — SPEAK from soul over tea",ex:"Speak Bisaya."},
+  77:{en:"work",pron:"trah-BAH-hoh",mn:"\"trabajo\" — Spanish for WORK",ex:"I'm working."},
+  78:{en:"buy",pron:"PAH-lit",mn:"\"PAL-it\" — my PAL bought IT",ex:"Buy food."},
+  79:{en:"return / go back",pron:"BAH-lik",mn:"\"BALL-ick\" — ball BOUNCED BACK",ex:"I'll return tomorrow."},
+  80:{en:"sleep",pron:"too-LOG",mn:"\"two-LOG\" — SLEEP like a LOG",ex:"I want to sleep."},
+  81:{en:"hot",pron:"ee-NIT",mn:"\"ignite\" — ignite = HOT!",ex:"Very hot."},
+  82:{en:"cold",pron:"boog-NAW",mn:"\"bug-NAH\" — nah, the bug is COLD",ex:"The water is cold."},
+  83:{en:"new",pron:"bag-OH",mn:"\"bag-OH\" — oh, a NEW bag!",ex:"This is new."},
+  84:{en:"old (thing)",pron:"dah-AN",mn:"\"DAWN\" — since DAWN of time = OLD",ex:"It's old."},
+  85:{en:"fast / quick",pron:"pas-PAS",mn:"\"PASS-PASS\" — PASS by FAST!",ex:"Very fast."},
+  86:{en:"slow",pron:"hee-NAI",mn:"\"he-NAY\" — horse says NAY, goes SLOW",ex:"Slowly."},
+  87:{en:"beautiful (f)",pron:"GWAH-pah",mn:"\"guapa\" — Spanish BEAUTIFUL woman",ex:"She is very beautiful."},
+  88:{en:"handsome (m)",pron:"GWAH-poh",mn:"\"guapo\" — Spanish HANDSOME man",ex:"He is very handsome."},
+  89:{en:"nice / beautiful",pron:"nin-DOT",mn:"\"nin-DOT\" — connect DOTS = NICE",ex:"Very nice!"},
+  90:{en:"difficult",pron:"lee-SOOD",mn:"\"lee-SUED\" — getting SUED is DIFFICULT",ex:"Very difficult."},
+  91:{en:"how much / how many",pron:"pee-LAH",mn:"\"PILLAR\" — HOW MANY pillars?",ex:"How much is this?"},
+  92:{en:"why",pron:"ngah-NOH",mn:"\"NANO\" — WHY so nano-small?",ex:"Why?"},
+  93:{en:"when",pron:"kah-noos-AH",mn:"\"CANOE-sa\" — WHEN does canoe arrive?",ex:"When will you arrive?"},
+  94:{en:"from",pron:"gee-KAN",mn:"\"gee-CAN\" — where did this CAN come FROM?",ex:"I came from home."},
+  95:{en:"for / stop",pron:"PAH-rah",mn:"\"para\" — Spanish FOR / STOP",ex:"This is for you."},
+  96:{en:"in / at / to",pron:"sah",mn:"\"SAH\" — small word IN/AT/TO",ex:"I'm at home."},
+  97:{en:"the (topic marker)",pron:"ahng",mn:"\"ANG\" — points to THE thing",ex:"The house is big."},
+  98:{en:"plural marker",pron:"mah-NGAH",mn:"\"manga\" — MANY manga comics",ex:"The people."},
+  99:{en:"there is / exists",pron:"nah-AH",mn:"\"nah-AH\" — it EXISTS",ex:"Is there water?"},
+  100:{en:"really / indeed",pron:"bee-TAW",mn:"\"bee-TAW\" — REALLY, the bee stung!",ex:"Indeed, it's good."},
+  101:{en:"all / everything",pron:"tah-NAN",mn:"\"ta-NAN\" — grandNAN knows ALL",ex:"All people."},
+  102:{en:"without / no (+noun)",pron:"wah-LIE",mn:"\"WAH-lie\" — it's a LIE, NOTHING",ex:"No problem."},
+  103:{en:"how (to do)",pron:"oon-SAH-on",mn:"\"un-SAW-on\" — HOW to turn saw ON?",ex:"How to do this?"},
+  104:{en:"help",pron:"tah-BANG",mn:"\"ta-BANG\" — BANG for HELP!",ex:"Help me!"},
+  105:{en:"friend",pron:"hee-GAH-lah",mn:"\"he-GALA\" — he's my FRIEND at the gala",ex:"My friend."},
+};
+
+let currentLang = localStorage.getItem('cebuano_lang') || 'ru';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('cebuano_lang', lang);
+  document.getElementById('langRU').classList.toggle('active', lang === 'ru');
+  document.getElementById('langEN').classList.toggle('active', lang === 'en');
+  refreshUI();
+  updateStats();
+  // Only re-render browse (safe, no session state). Other modes keep their current view.
+  if (currentTab === 'browse') { renderFilters(); renderCards(); }
+  if (currentTab === 'settings') refreshSettings();
+}
+
+function refreshUI() {
+  // Header
+  document.getElementById('headerSubtitle').textContent = T('subtitle');
+  // Stat labels
+  const labels = document.querySelectorAll('.stat-card .label');
+  const labelKeys = ['statTotal','statLearned','statDue','statStreak','statToday'];
+  labels.forEach((el, i) => { if (labelKeys[i]) el.textContent = T(labelKeys[i]); });
+  // Tabs
+  const tabKeys = ['tabDaily','tabLearn','tabReview','tabQuiz','tabSentences','tabBrowse'];
+  const tabs = document.querySelectorAll('.tab[data-tab]');
+  tabs.forEach(tab => {
+    const map = { daily:'tabDaily', learn:'tabLearn', review:'tabReview', quiz:'tabQuiz', sentences:'tabSentences', browse:'tabBrowse' };
+    const key = map[tab.dataset.tab];
+    if (key) tab.textContent = T(key);
+  });
+  // Settings
+  refreshSettings();
+}
+
+function refreshSettings() {
+  const el = document.getElementById('settingsMode');
+  el.innerHTML = `
+    <div class="settings-group">
+      <h3>${T('settingsTitle')}</h3>
+      <div class="setting-row"><label>${T('settingsNewPerDay')}</label><input type="number" id="newPerDay" min="1" max="20" value="${state.settings.newPerDay}" onchange="saveSetting('newPerDay',this.value)"></div>
+      <div class="setting-row"><label>${T('settingsQuizCount')}</label><input type="number" id="quizCount" min="3" max="30" value="${state.settings.quizCount}" onchange="saveSetting('quizCount',this.value)"></div>
+      <div class="setting-row"><label>${T('settingsDirection')}</label>
+        <select id="quizDirection" onchange="saveSetting('quizDirection',this.value)">
+          <option value="cebuano-english" ${state.settings.quizDirection==='cebuano-english'?'selected':''}>${T('settingsDirCeb')}</option>
+          <option value="english-cebuano" ${state.settings.quizDirection==='english-cebuano'?'selected':''}>${T('settingsDirRev')}</option>
+          <option value="mixed" ${state.settings.quizDirection==='mixed'?'selected':''}>${T('settingsDirMix')}</option>
+        </select>
+      </div>
+      <div class="setting-row"><label>${T('settingsAudio')}</label>
+        <select id="autoAudio" onchange="saveSetting('autoAudio',this.value)">
+          <option value="on" ${state.settings.autoAudio==='on'?'selected':''}>${T('settingsOn')}</option>
+          <option value="off" ${state.settings.autoAudio!=='on'?'selected':''}>${T('settingsOff')}</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-group">
+      <h3>${T('settingsData')}</h3>
+      <div class="setting-row"><label>${T('settingsReset')}</label><button class="reset-btn" onclick="resetProgress()">${T('settingsResetBtn')}</button></div>
+      <div class="setting-row"><label>${currentLang === 'ru' ? 'Экспорт прогресса' : 'Export progress'}</label><button onclick="exportProgress()" style="padding:8px 16px;border-radius:8px;border:none;background:#3498db;color:white;cursor:pointer;font-weight:bold">📥 ${currentLang === 'ru' ? 'Скачать' : 'Download'}</button></div>
+      <div class="setting-row"><label>${currentLang === 'ru' ? 'Импорт прогресса' : 'Import progress'}</label><button onclick="importProgress()" style="padding:8px 16px;border-radius:8px;border:none;background:#e67e22;color:white;cursor:pointer;font-weight:bold">📤 ${currentLang === 'ru' ? 'Загрузить' : 'Upload'}</button></div>
+      <div class="setting-row"><label>${currentLang === 'ru' ? 'Автосохранение в файл' : 'Auto-save to file'}</label><button id="autoSaveBtn" onclick="enableAutoSave()" style="padding:8px 16px;border-radius:8px;border:none;background:#9b59b6;color:white;cursor:pointer;font-weight:bold">💾 ${currentLang === 'ru' ? 'Включить' : 'Enable'}</button></div>
+    </div>`;
+}
+
+function getTranslation(w) {
+  if (currentLang === 'en' && EN_DATA[w.id]) {
+    const d = EN_DATA[w.id];
+    return { english: d.en, pronunciation: d.pron, mnemonic: d.mn, exampleEn: d.ex };
+  }
+  return { english: w.english, pronunciation: w.pronunciation, mnemonic: w.mnemonic, exampleEn: w.exampleEn };
+}
+
+// ==================== i18n UI STRINGS ====================
+const UI = {
+  // Header & stats
+  subtitle: { ru:'Мнемоника + Интервальные повторения + Активное запоминание', en:'Visual mnemonics + Spaced repetition + Active recall' },
+  statTotal: { ru:'Всего', en:'Total' },
+  statLearned: { ru:'Выучено', en:'Learned' },
+  statDue: { ru:'Повторить', en:'Due' },
+  statStreak: { ru:'Серия', en:'Streak' },
+  statToday: { ru:'Сегодня', en:'Today' },
+  progressLabel: { ru:(l,t,p)=>`${l} / ${t} слов выучено (${p}%)`, en:(l,t,p)=>`${l} / ${t} words learned (${p}%)` },
+  // Tabs
+  tabDaily: { ru:'🎯 Сегодня', en:'🎯 Today' },
+  tabLearn: { ru:'📚 Учить', en:'📚 Learn' },
+  tabReview: { ru:'🧠 Повторять', en:'🧠 Review' },
+  tabQuiz: { ru:'✏️ Тест', en:'✏️ Quiz' },
+  tabSentences: { ru:'💬 Фразы', en:'💬 Sentences' },
+  tabBrowse: { ru:'📖 Словарь', en:'📖 Browse' },
+  // Daily
+  dailyTitle: { ru:'Сегодняшняя сессия', en:"Today's Session" },
+  dailyNew: { ru:'Новых слов', en:'New Words' },
+  dailyReviews: { ru:'Повторений', en:'Reviews' },
+  dailyFlow: { ru:'Учить → Повторить → Тест', en:'Learn → Review → Quiz' },
+  dailyStart: { ru:'Начать', en:'Start Session' },
+  dailyDone: { ru:'Отличная работа сегодня!', en:'Great job today!' },
+  dailyDoneLearned: { ru:'Выучено', en:'Learned' },
+  dailyDoneReviewed: { ru:'Повторено', en:'Reviewed' },
+  dailyDoneQuizzed: { ru:'Тестов', en:'Quizzed' },
+  dailyComeBack: { ru:'Возвращайся завтра за новыми словами!', en:'Come back tomorrow for new words!' },
+  dailyOrTabs: { ru:'Или используй вкладки выше для практики.', en:'Or use the tabs above to practice more.' },
+  // Learn
+  learnSteps: { ru:['Шаг 1: Полная карточка','Шаг 2: Вспомни перевод','Шаг 3: Полное вспоминание'], en:['Step 1: Full Card','Step 2: Recall meaning','Step 3: Full Recall'] },
+  learnRevealMeaning: { ru:'Нажми чтобы увидеть перевод', en:'Tap to reveal meaning' },
+  learnRevealHint: { ru:'Нажми чтобы увидеть подсказку', en:'Tap to reveal hint' },
+  learnGotIt: { ru:'Понял! →', en:'Got it! →' },
+  learnNoNew: { ru:'Нет новых слов на сегодня!', en:'No new words today!' },
+  learnNoNewSub: { ru:'Все слова изучены. Перейди в Повторение для практики.', en:'All words introduced. Go to Review to practice.' },
+  learnDone: { ru:'Слова выучены!', en:'Words Learned!' },
+  learnDoneSub: { ru:(n)=>`${n} новых слов добавлено в память.`, en:(n)=>`${n} new words added to your memory.` },
+  learnToReview: { ru:'Перейти к повторению →', en:'Continue to Review →' },
+  // Review
+  reviewDone: { ru:'Всё повторено!', en:'All caught up!' },
+  reviewDoneSub: { ru:'Нет слов для повторения. Попробуй Тест!', en:'No reviews due. Try a Quiz!' },
+  reviewToQuiz: { ru:'Пройти тест →', en:'Take a Quiz →' },
+  reviewComplete: { ru:'Повторение завершено!', en:'Review complete!' },
+  reviewCompleteSub: { ru:(n)=>`${n} слов повторено сегодня.`, en:(n)=>`${n} words reviewed today.` },
+  revealHint: { ru:'Нажми чтобы увидеть ответ', en:'Click to reveal answer' },
+  btnAgain: { ru:'Снова', en:'Again' },
+  btnHard: { ru:'Трудно', en:'Hard' },
+  btnGood: { ru:'Хорошо', en:'Good' },
+  btnEasy: { ru:'Легко', en:'Easy' },
+  // Quiz
+  quizNeedMore: { ru:'Нужно больше слов!', en:'Need more words!' },
+  quizNeedMoreSub: { ru:'Сначала выучи хотя бы 4 слова.', en:'Learn at least 4 words first.' },
+  quizChoice: { ru:'Выбери ответ', en:'Multiple Choice' },
+  quizTyping: { ru:'Напиши ответ', en:'Type the Answer' },
+  quizMatch: { ru:'Соедини пары', en:'Match Pairs' },
+  quizMatchSub: { ru:'Соедини себуанское слово с переводом', en:'Match each Cebuano word with its meaning' },
+  quizCebQ: { ru:(p)=>`[${p}] — Что это значит?`, en:(p)=>`[${p}] — What does it mean?` },
+  quizRevQ: { ru:'Как это на себуано?', en:'What is this in Cebuano?' },
+  quizTypeQ: { ru:'Напиши слово на себуано:', en:'Type the Cebuano word:' },
+  quizTypeMeanQ: { ru:'Напиши перевод:', en:'Type the meaning:' },
+  quizPlaceholder: { ru:'Напиши здесь...', en:'Type here...' },
+  quizCheck: { ru:'Проверить ✓', en:'Check ✓' },
+  quizCorrect: { ru:'✅ Правильно!', en:'✅ Correct!' },
+  quizAllMatched: { ru:'✅ Все соединены!', en:'✅ All matched!' },
+  quizWrongAnswer: { ru:'Правильный ответ:', en:'Correct answer:' },
+  quizNext: { ru:'Дальше →', en:'Next →' },
+  quizQuestion: { ru:(i,t)=>`Вопрос ${i}/${t}`, en:(i,t)=>`Question ${i}/${t}` },
+  quizScore: { ru:'Счёт:', en:'Score:' },
+  quizMaxCombo: { ru:'Макс. серия:', en:'Max combo:' },
+  quizExcellent: { ru:'Отлично!', en:'Excellent!' },
+  quizGoodJob: { ru:'Хорошо!', en:'Good job!' },
+  quizKeepGoing: { ru:'Продолжай практиковаться!', en:'Keep practicing!' },
+  quizTryAgain: { ru:'Ещё раз', en:'Try Again' },
+  // Sentences
+  sentBuild: { ru:'Собери предложение:', en:'Build this sentence:' },
+  sentCheck: { ru:'Проверить ✓', en:'Check ✓' },
+  sentTapWords: { ru:'Нажимай слова чтобы собрать предложение...', en:'Tap words to build sentence...' },
+  sentHint: { ru:'Подсказка:', en:'Hint:' },
+  sentCorrectOrder: { ru:'Правильный порядок:', en:'Correct order:' },
+  // Browse filters
+  filters: {
+    ru: { all:'🌐 Все', pronoun:'👤 Местоимения', verb:'🏃 Глаголы', question:'❓ Вопросы', noun:'📦 Существительные', adjective:'🎨 Прилагательные', connector:'🔗 Связки', phrase:'💬 Фразы', number:'🔢 Числа' },
+    en: { all:'🌐 All', pronoun:'👤 Pronouns', verb:'🏃 Verbs', question:'❓ Questions', noun:'📦 Nouns', adjective:'🎨 Adjectives', connector:'🔗 Connectors', phrase:'💬 Phrases', number:'🔢 Numbers' }
+  },
+  // Settings
+  settingsTitle: { ru:'Настройки обучения', en:'Study Settings' },
+  settingsNewPerDay: { ru:'Новых слов в день', en:'New words per day' },
+  settingsQuizCount: { ru:'Вопросов в тесте', en:'Quiz questions' },
+  settingsDirection: { ru:'Направление теста', en:'Quiz direction' },
+  settingsDirCeb: { ru:'Себуано → Русский', en:'Cebuano → English' },
+  settingsDirRev: { ru:'Русский → Себуано', en:'English → Cebuano' },
+  settingsDirMix: { ru:'Вперемешку', en:'Mixed' },
+  settingsAudio: { ru:'Автозвук', en:'Auto-play audio' },
+  settingsOn: { ru:'Вкл', en:'On' },
+  settingsOff: { ru:'Выкл', en:'Off' },
+  settingsData: { ru:'Данные', en:'Data' },
+  settingsReset: { ru:'Сбросить весь прогресс', en:'Reset all progress' },
+  settingsResetBtn: { ru:'Сбросить', en:'Reset' },
+  settingsResetConfirm: { ru:'Сбросить ВЕСЬ прогресс? Это нельзя отменить!', en:'Reset ALL progress? This cannot be undone!' },
+};
+
+function T(key) {
+  const v = UI[key];
+  if (!v) return key;
+  return v[currentLang] || v['en'] || key;
+}
+
+// ==================== SM-2 ALGORITHM ====================
+function getDefaultSR() {
+  return { interval: 0, repetition: 0, efactor: 2.5, dueDate: Date.now(), lastReview: null };
+}
+
+function sm2(sr, quality) {
+  const q = quality + 2;
+  let { interval, repetition, efactor } = sr;
+  if (q < 3) { repetition = 0; interval = 0; }
+  else {
+    if (repetition === 0) interval = 1;
+    else if (repetition === 1) interval = 3;
+    else interval = Math.round(interval * efactor);
+    repetition++;
+  }
+  efactor = efactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+  if (efactor < 1.3) efactor = 1.3;
+  return { interval, repetition, efactor, dueDate: Date.now() + interval * 86400000, lastReview: Date.now() };
+}
+
+function previewInterval(sr, quality) {
+  const result = sm2({...sr}, quality);
+  if (result.interval === 0) return '<1d';
+  if (result.interval === 1) return '1d';
+  return result.interval + 'd';
+}
+
+// ==================== STATE ====================
+let state = loadState();
+let currentTab = 'daily';
+
+function loadState() {
+  const saved = localStorage.getItem('cebuano_v2');
+  if (saved) return JSON.parse(saved);
+  return {
+    sr: {}, settings: { newPerDay: 5, quizCount: 10, quizDirection: 'mixed', autoAudio: 'on' },
+    streak: { count: 0, lastDate: null }, introduced: [], todayStats: { date: null, learned: 0, reviewed: 0, quizzed: 0 }
+  };
+}
+function saveState() {
+  const json = JSON.stringify(state);
+  localStorage.setItem('cebuano_v2', json);
+  // Auto-save backup to file via hidden link trick
+  autoBackupToFile(json);
+}
+
+let _backupTimer = null;
+function autoBackupToFile(json) {
+  // Debounce: save file max once per 5 seconds
+  if (_backupTimer) clearTimeout(_backupTimer);
+  _backupTimer = setTimeout(() => {
+    try {
+      const blob = new Blob([json], {type: 'application/json'});
+      // Use File System Access API if available (Chrome 86+)
+      if (window._backupFileHandle) {
+        window._backupFileHandle.createWritable().then(w => {
+          w.write(blob).then(() => w.close());
+        }).catch(() => {});
+      }
+    } catch(e) {}
+  }, 5000);
+}
+
+function exportProgress() {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cebuano-progress-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importProgress() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (imported.sr && imported.settings) {
+          state = imported;
+          saveState();
+          updateStats();
+          switchTab('daily');
+          alert(currentLang === 'ru' ? 'Прогресс восстановлен!' : 'Progress restored!');
+        } else {
+          alert(currentLang === 'ru' ? 'Неверный формат файла' : 'Invalid file format');
+        }
+      } catch(err) {
+        alert(currentLang === 'ru' ? 'Ошибка чтения файла' : 'Error reading file');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+async function enableAutoSave() {
+  try {
+    if (!window.showSaveFilePicker) return;
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'cebuano-autosave.json',
+      types: [{ description: 'JSON', accept: {'application/json': ['.json']} }]
+    });
+    window._backupFileHandle = handle;
+    saveState(); // trigger immediate save
+    const btn = document.getElementById('autoSaveBtn');
+    if (btn) {
+      btn.textContent = currentLang === 'ru' ? 'Автосохранение ON' : 'Auto-save ON';
+      btn.style.background = '#27ae60';
+    }
+  } catch(e) {}
+}
+function getSR(id) { return state.sr[id] || getDefaultSR(); }
+
+function getTodayStats() {
+  const today = new Date().toDateString();
+  if (state.todayStats.date !== today) {
+    state.todayStats = { date: today, learned: 0, reviewed: 0, quizzed: 0 };
+    saveState();
+  }
+  return state.todayStats;
+}
+
+// ==================== AUDIO ====================
+let availableVoice = null;
+let voiceChecked = false;
+
+function findBestVoice() {
+  if (voiceChecked) return availableVoice;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) return null;
+  voiceChecked = true;
+  // Priority: Cebuano > Filipino > Tagalog > Malay/Indonesian (similar phonology) > Spanish (many loanwords)
+  const priorities = ['ceb', 'fil', 'tl', 'ms', 'id', 'es'];
+  for (const code of priorities) {
+    const v = voices.find(v => v.lang.startsWith(code));
+    if (v) { availableVoice = v; return v; }
+  }
+  return null;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voice = findBestVoice();
+  if (voice) {
+    u.voice = voice;
+    u.lang = voice.lang;
+  } else {
+    // Fallback: use Spanish — Cebuano has many Spanish loanwords, similar vowel system
+    u.lang = 'es-ES';
+  }
+  u.rate = 0.75;
+  u.pitch = 1.0;
+  speechSynthesis.speak(u);
+}
+
+// Load voices (async in some browsers)
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = () => { voiceChecked = false; findBestVoice(); };
+  // Try immediately too
+  findBestVoice();
+}
+
+// ==================== STREAK ====================
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (state.streak.lastDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  state.streak.count = (state.streak.lastDate === yesterday) ? state.streak.count + 1 : 1;
+  state.streak.lastDate = today;
+  saveState();
+}
+
+// ==================== STATS ====================
+function getNewWords() {
+  return WORDS.filter(w => !(state.introduced || []).includes(w.id));
+}
+function getDueWords() {
+  const now = Date.now();
+  return WORDS.filter(w => {
+    const sr = getSR(w.id);
+    return sr.lastReview && sr.dueDate <= now;
+  });
+}
+function getLearnedCount() {
+  return WORDS.filter(w => getSR(w.id).repetition >= 3).length;
+}
+
+function updateStats() {
+  const total = WORDS.length;
+  const learned = getLearnedCount();
+  const dueCount = getDueWords().length;
+  const newAvail = Math.min(getNewWords().length, state.settings.newPerDay);
+  const ts = getTodayStats();
+
+  document.getElementById('totalWords').textContent = total;
+  document.getElementById('learnedWords').textContent = learned;
+  document.getElementById('dueWords').textContent = dueCount + newAvail;
+  document.getElementById('streakDays').textContent = state.streak.count;
+  document.getElementById('todayScore').textContent = ts.learned + ts.reviewed + ts.quizzed;
+
+  const pct = total > 0 ? Math.round((learned / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = T('progressLabel')(learned, total, pct);
+}
+
+// ==================== TABS ====================
+const ALL_MODES = ['dailyMode','learnMode','reviewMode','quizMode','sentenceMode','browseMode','settingsMode'];
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const map = { daily:'dailyMode', learn:'learnMode', review:'reviewMode', quiz:'quizMode', sentences:'sentenceMode', browse:'browseMode', settings:'settingsMode' };
+  ALL_MODES.forEach(m => {
+    const el = document.getElementById(m);
+    el.style.display = (m === map[tab]) ? (m === 'browseMode' ? 'block' : 'block') : 'none';
+  });
+
+  if (tab === 'daily') initDaily();
+  if (tab === 'learn') initLearn();
+  if (tab === 'review') initReview();
+  if (tab === 'quiz') initQuiz();
+  if (tab === 'sentences') initSentences();
+  if (tab === 'browse') { renderFilters(); renderCards(); }
+  if (tab === 'settings') loadSettings();
+}
+
+// ==================== DAILY SESSION ====================
+let dailyPhase = 'welcome'; // welcome, learn, review, quiz, done
+
+function initDaily() {
+  const el = document.getElementById('dailyMode');
+  const newCount = Math.min(getNewWords().length, state.settings.newPerDay);
+  const dueCount = getDueWords().length;
+  const ts = getTodayStats();
+
+  if (ts.learned >= newCount && ts.reviewed >= dueCount && (ts.learned + ts.reviewed) > 0) {
+    // Already done today
+    el.innerHTML = `
+      <div class="daily-summary">
+        <div class="big-emoji">🎉</div>
+        <h2>${T('dailyDone')}</h2>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="val" style="color:var(--blue)">${ts.learned}</div><div class="lbl">${T('dailyDoneLearned')}</div></div>
+          <div class="summary-stat"><div class="val" style="color:var(--orange)">${ts.reviewed}</div><div class="lbl">${T('dailyDoneReviewed')}</div></div>
+          <div class="summary-stat"><div class="val" style="color:var(--green)">${ts.quizzed}</div><div class="lbl">${T('dailyDoneQuizzed')}</div></div>
+        </div>
+        <p style="color:var(--text-dim)">${T('dailyComeBack')}</p>
+        <p style="color:var(--text-dim);margin-top:8px">${T('dailyOrTabs')}</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="daily-welcome">
+      <div style="font-size:3em;margin-bottom:10px">🌅</div>
+      <h2>${T('dailyTitle')}</h2>
+      <div class="daily-plan">
+        <div class="daily-plan-item learn"><div class="num">${newCount}</div><div class="lbl">${T('dailyNew')}</div></div>
+        <div class="daily-plan-item review"><div class="num">${dueCount}</div><div class="lbl">${T('dailyReviews')}</div></div>
+      </div>
+      <p style="color:var(--text-dim);margin:10px 0">${T('dailyFlow')}</p>
+      <button class="daily-start-btn" onclick="startDailySession()">${T('dailyStart')}</button>
+    </div>`;
+}
+
+function startDailySession() {
+  const newCount = Math.min(getNewWords().length, state.settings.newPerDay);
+  if (newCount > 0) {
+    switchTab('learn');
+  } else if (getDueWords().length > 0) {
+    switchTab('review');
+  } else {
+    switchTab('quiz');
+  }
+}
+
+// ==================== LEARN MODE ====================
+let learnQueue = [];
+let learnIndex = 0;
+let learnStep = 0; // 0=full, 1=hide english, 2=hide mnemonic too
+
+function initLearn() {
+  const el = document.getElementById('learnMode');
+  const newWords = getNewWords().slice(0, state.settings.newPerDay);
+
+  if (newWords.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="big-emoji">✅</div><h2>${T('learnNoNew')}</h2>
+      <p style="color:var(--text-dim);margin-top:10px">${T('learnNoNewSub')}</p></div>`;
+    return;
+  }
+
+  // Each word appears 3 times with increasing difficulty
+  learnQueue = [];
+  newWords.forEach(w => {
+    learnQueue.push({ word: w, step: 0 }); // full show
+  });
+  newWords.forEach(w => {
+    learnQueue.push({ word: w, step: 1 }); // hide english
+  });
+  newWords.forEach(w => {
+    learnQueue.push({ word: w, step: 2 }); // hide english + mnemonic
+  });
+
+  learnIndex = 0;
+  showLearnCard();
+}
+
+function showLearnCard() {
+  const el = document.getElementById('learnMode');
+
+  if (learnIndex >= learnQueue.length) {
+    // Done learning
+    const ts = getTodayStats();
+    el.innerHTML = `<div class="empty-state"><div class="big-emoji">🧠</div><h2>${T('learnDone')}</h2>
+      <p style="color:var(--text-dim);margin-top:10px">${T('learnDoneSub')(ts.learned)}</p>
+      <button class="learn-btn next" style="margin-top:20px" onclick="switchTab('review')">${T('learnToReview')}</button></div>`;
+    updateStats();
+    return;
+  }
+
+  const { word: w, step } = learnQueue[learnIndex];
+  const t = getTranslation(w);
+  const totalSteps = learnQueue.length;
+  const stepLabels = T('learnSteps');
+  const stepLabel = stepLabels[step];
+
+  let englishHtml, mnemonicHtml;
+  if (step === 0) {
+    englishHtml = `<div class="english">${t.english}</div>`;
+    mnemonicHtml = `<div class="mnemonic">💡 ${t.mnemonic}</div>`;
+  } else if (step === 1) {
+    englishHtml = `<div class="hidden-field" id="hiddenEnglish" onclick="this.innerHTML='${t.english}';this.classList.add('revealed');this.style.color='var(--green)';this.style.fontSize='1.3em'">${T('learnRevealMeaning')}</div>`;
+    mnemonicHtml = `<div class="mnemonic">💡 ${t.mnemonic}</div>`;
+  } else {
+    englishHtml = `<div class="hidden-field" id="hiddenEnglish" onclick="this.innerHTML='${t.english}';this.classList.add('revealed');this.style.color='var(--green)';this.style.fontSize='1.3em'">${T('learnRevealMeaning')}</div>`;
+    mnemonicHtml = `<div class="hidden-field" onclick="this.innerHTML='💡 ${t.mnemonic.replace(/'/g,"\\'")}';this.classList.add('revealed');this.style.color='var(--orange)'">${T('learnRevealHint')}</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="learn-card">
+      <div class="step-label">${stepLabel}</div>
+      <div class="emoji">${w.emoji}</div>
+      <div class="cebuano">${w.cebuano}</div>
+      <div class="pronunciation">[${t.pronunciation}]</div>
+      <button class="audio-btn-fc" onclick="event.stopPropagation();speak('${w.cebuano}')" title="Listen">🔊</button>
+      ${englishHtml}
+      ${mnemonicHtml}
+      <div class="example">"${w.example}"</div>
+      <div class="example-trans">${t.exampleEn}</div>
+      <button class="learn-btn next" onclick="nextLearnCard()">${T('learnGotIt')}</button>
+    </div>
+    <div class="learn-progress">${learnIndex + 1} / ${totalSteps}</div>`;
+
+  if (state.settings.autoAudio === 'on') speak(w.cebuano);
+}
+
+function nextLearnCard() {
+  const { word } = learnQueue[learnIndex];
+
+  // Mark as introduced after first encounter (step 0)
+  if (learnQueue[learnIndex].step === 0) {
+    if (!state.introduced) state.introduced = [];
+    if (!state.introduced.includes(word.id)) {
+      state.introduced.push(word.id);
+      state.sr[word.id] = getDefaultSR();
+      const ts = getTodayStats();
+      ts.learned++;
+      updateStreak();
+      saveState();
+    }
+  }
+
+  learnIndex++;
+  showLearnCard();
+}
+
+// ==================== REVIEW (SRS) ====================
+let reviewQueue = [];
+let reviewIndex = 0;
+
+function initReview() {
+  const el = document.getElementById('reviewMode');
+  const due = getDueWords();
+
+  // Also include newly introduced words that haven't been reviewed yet
+  const newlyIntro = WORDS.filter(w => {
+    const sr = getSR(w.id);
+    return (state.introduced || []).includes(w.id) && !sr.lastReview;
+  });
+
+  reviewQueue = [...due, ...newlyIntro];
+  for (let i = reviewQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [reviewQueue[i], reviewQueue[j]] = [reviewQueue[j], reviewQueue[i]];
+  }
+  reviewIndex = 0;
+
+  if (reviewQueue.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="big-emoji">🎉</div><h2>${T('reviewDone')}</h2>
+      <p style="color:var(--text-dim);margin-top:10px">${T('reviewDoneSub')}</p>
+      <button class="learn-btn" style="margin-top:20px" onclick="switchTab('quiz')">${T('reviewToQuiz')}</button></div>`;
+    return;
+  }
+
+  showReviewCard();
+}
+
+function showReviewCard() {
+  const el = document.getElementById('reviewMode');
+
+  if (reviewIndex >= reviewQueue.length) {
+    const ts = getTodayStats();
+    el.innerHTML = `<div class="empty-state"><div class="big-emoji">🎉</div><h2>${T('reviewComplete')}</h2>
+      <p style="color:var(--text-dim);margin-top:10px">${T('reviewCompleteSub')(ts.reviewed)}</p>
+      <button class="learn-btn next" style="margin-top:20px" onclick="switchTab('quiz')">${T('reviewToQuiz')}</button></div>`;
+    updateStats();
+    return;
+  }
+
+  const w = reviewQueue[reviewIndex];
+  const t = getTranslation(w);
+  const sr = getSR(w.id);
+
+  el.innerHTML = `
+    <div class="flashcard" id="flashcard" onclick="document.getElementById('flashcard').classList.add('revealed');document.getElementById('fcButtons').style.display='flex'">
+      <button class="audio-btn-fc" onclick="event.stopPropagation();speak('${w.cebuano}')" title="Listen">🔊</button>
+      <div class="emoji">${w.emoji}</div>
+      <div class="cebuano">${w.cebuano}</div>
+      <div class="pronunciation">[${t.pronunciation}]</div>
+      <div class="english">${t.english}</div>
+      <div class="mnemonic">💡 ${t.mnemonic}</div>
+      <div class="example" style="display:none">"${w.example}" — ${t.exampleEn}</div>
+      <div class="hint">${T('revealHint')}</div>
+    </div>
+    <div class="flashcard-buttons" id="fcButtons" style="display:none">
+      <button class="fc-btn again" onclick="rateReview(0)">${T('btnAgain')}<span class="interval">${previewInterval(sr,0)}</span></button>
+      <button class="fc-btn hard" onclick="rateReview(1)">${T('btnHard')}<span class="interval">${previewInterval(sr,1)}</span></button>
+      <button class="fc-btn good" onclick="rateReview(2)">${T('btnGood')}<span class="interval">${previewInterval(sr,2)}</span></button>
+      <button class="fc-btn easy" onclick="rateReview(3)">${T('btnEasy')}<span class="interval">${previewInterval(sr,3)}</span></button>
+    </div>
+    <div class="flashcard-progress">${reviewIndex + 1} / ${reviewQueue.length}</div>`;
+
+  if (state.settings.autoAudio === 'on') speak(w.cebuano);
+}
+
+function rateReview(quality) {
+  const w = reviewQueue[reviewIndex];
+  state.sr[w.id] = sm2(getSR(w.id), quality);
+  const ts = getTodayStats();
+  ts.reviewed++;
+  updateStreak();
+  saveState();
+
+  if (quality === 0) reviewQueue.push(w);
+  reviewIndex++;
+  showReviewCard();
+}
+
+// ==================== QUIZ ====================
+let quizData = [];
+let quizIdx = 0;
+let quizCorrect = 0;
+let quizCombo = 0;
+let quizMaxCombo = 0;
+let matchSelected = null;
+let matchPairs = {};
+
+function initQuiz() {
+  const el = document.getElementById('quizMode');
+  const available = WORDS.filter(w => (state.introduced || []).includes(w.id));
+
+  if (available.length < 4) {
+    el.innerHTML = `<div class="empty-state"><div class="big-emoji">📚</div><h2>${T('quizNeedMore')}</h2>
+      <p style="color:var(--text-dim);margin-top:10px">${T('quizNeedMoreSub')}</p></div>`;
+    return;
+  }
+
+  const count = Math.min(state.settings.quizCount, available.length);
+  const shuffled = [...available].sort(() => Math.random() - 0.5);
+  quizData = shuffled.slice(0, count).map(w => {
+    // Assign random quiz type
+    const types = ['choice'];
+    if (available.length >= 8) types.push('matching');
+    types.push('typing');
+    const type = types[Math.floor(Math.random() * types.length)];
+    return { word: w, type };
+  });
+
+  quizIdx = 0;
+  quizCorrect = 0;
+  quizCombo = 0;
+  quizMaxCombo = 0;
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  const el = document.getElementById('quizMode');
+
+  if (quizIdx >= quizData.length) {
+    const pct = Math.round((quizCorrect / quizData.length) * 100);
+    const ts = getTodayStats();
+    ts.quizzed += quizData.length;
+    saveState();
+    updateStats();
+    el.innerHTML = `
+      <div class="quiz-card">
+        <div style="font-size:4em;margin-bottom:15px">${pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪'}</div>
+        <h2>${quizCorrect} / ${quizData.length} correct (${pct}%)</h2>
+        <p style="color:var(--text-dim);margin-top:8px">${T('quizMaxCombo')}: ${quizMaxCombo} 🔥</p>
+        <p style="color:var(--text-dim);margin-top:5px">${pct >= 80 ? T('quizExcellent') : pct >= 50 ? T('quizGoodJob') : T('quizKeepGoing')}</p>
+        <button class="learn-btn" style="margin-top:20px" onclick="initQuiz()">${T('quizTryAgain')}</button>
+      </div>`;
+    return;
+  }
+
+  const { word: w, type } = quizData[quizIdx];
+  const available = WORDS.filter(x => (state.introduced || []).includes(x.id));
+  const dir = state.settings.quizDirection;
+  const isReverse = dir === 'english-cebuano' || (dir === 'mixed' && Math.random() > 0.5);
+
+  const comboHtml = quizCombo >= 2 ? `<div class="combo-display"><span class="combo-fire">🔥 ${quizCombo} combo!</span></div>` : '';
+
+  if (type === 'choice') {
+    const tw = getTranslation(w);
+    const pool = available.filter(x => x.id !== w.id).sort(() => Math.random() - 0.5).slice(0, 3);
+    const options = [...pool, w].sort(() => Math.random() - 0.5);
+
+    el.innerHTML = `
+      <div class="quiz-card">
+        <div class="quiz-type-badge">${T('quizChoice')}</div>
+        <div class="emoji">${w.emoji}</div>
+        <div class="question">${isReverse ? tw.english : w.cebuano}</div>
+        <div class="sub-question">${isReverse ? T('quizRevQ') : T('quizCebQ')(tw.pronunciation)}</div>
+        <div class="quiz-options">${options.map(o => {
+          const to = getTranslation(o);
+          const label = isReverse ? o.cebuano : to.english;
+          return `<button class="quiz-option" onclick="checkChoice(this,${o.id},${w.id})">${label}</button>`;
+        }).join('')}</div>
+        <div class="quiz-result" id="qzResult"></div>
+        <button class="quiz-next-btn" id="qzNext" onclick="quizIdx++;showQuizQuestion()">${T('quizNext')}</button>
+      </div>
+      <div class="quiz-score">${T('quizQuestion')(quizIdx+1,quizData.length)} | ${T('quizScore')} ${quizCorrect} ${comboHtml}</div>`;
+  } else if (type === 'typing') {
+    const tw = getTranslation(w);
+    el.innerHTML = `
+      <div class="quiz-card">
+        <div class="quiz-type-badge">${T('quizTyping')}</div>
+        <div class="emoji">${w.emoji}</div>
+        <div class="question">${isReverse ? tw.english : w.cebuano}</div>
+        <div class="sub-question">${isReverse ? T('quizTypeQ') : T('quizTypeMeanQ')}</div>
+        <div class="typing-input-wrap">
+          <input class="typing-input" id="typingInput" placeholder="${T('quizPlaceholder')}" autocomplete="off"
+            onkeydown="if(event.key==='Enter')checkTyping(${w.id},${isReverse})">
+        </div>
+        <button class="typing-submit" onclick="checkTyping(${w.id},${isReverse})">${T('quizCheck')}</button>
+        <div class="quiz-result" id="qzResult"></div>
+        <button class="quiz-next-btn" id="qzNext" onclick="quizIdx++;showQuizQuestion()">${T('quizNext')}</button>
+      </div>
+      <div class="quiz-score">${T('quizQuestion')(quizIdx+1,quizData.length)} | ${T('quizScore')} ${quizCorrect} ${comboHtml}</div>`;
+    setTimeout(() => document.getElementById('typingInput')?.focus(), 100);
+  } else if (type === 'matching') {
+    const pool = available.filter(x => x.id !== w.id).sort(() => Math.random() - 0.5).slice(0, 3);
+    const matchWords = [w, ...pool];
+    const cebuanoSide = [...matchWords].sort(() => Math.random() - 0.5);
+    const englishSide = [...matchWords].sort(() => Math.random() - 0.5);
+    matchSelected = null;
+    matchPairs = {};
+
+    el.innerHTML = `
+      <div class="quiz-card">
+        <div class="quiz-type-badge">${T('quizMatch')}</div>
+        <div class="sub-question">${T('quizMatchSub')}</div>
+        <div class="match-grid" id="matchGrid">
+          ${cebuanoSide.map(x => `<div class="match-item" data-id="${x.id}" data-side="ceb" onclick="matchClick(this)">${x.cebuano}</div>`).join('')}
+          ${englishSide.map(x => `<div class="match-item" data-id="${x.id}" data-side="eng" onclick="matchClick(this)">${getTranslation(x).english}</div>`).join('')}
+        </div>
+        <div class="quiz-result" id="qzResult"></div>
+        <button class="quiz-next-btn" id="qzNext" onclick="quizIdx++;showQuizQuestion()">${T('quizNext')}</button>
+      </div>
+      <div class="quiz-score">${T('quizQuestion')(quizIdx+1,quizData.length)} | ${T('quizScore')} ${quizCorrect} ${comboHtml}</div>`;
+  }
+}
+
+function checkChoice(btn, selectedId, correctId) {
+  document.querySelectorAll('.quiz-option').forEach(b => { b.disabled = true; b.style.pointerEvents = 'none'; });
+  const correct = selectedId === correctId;
+  const w = WORDS.find(x => x.id === correctId);
+  const tw = getTranslation(w);
+
+  if (correct) {
+    btn.classList.add('correct');
+    quizCorrect++;
+    quizCombo++;
+    if (quizCombo > quizMaxCombo) quizMaxCombo = quizCombo;
+    document.getElementById('qzResult').className = 'quiz-result show correct-result';
+    document.getElementById('qzResult').textContent = T('quizCorrect');
+  } else {
+    btn.classList.add('wrong');
+    quizCombo = 0;
+    document.querySelectorAll('.quiz-option').forEach(b => {
+      if (b.textContent === w.cebuano || b.textContent === tw.english) b.classList.add('correct');
+    });
+    document.getElementById('qzResult').className = 'quiz-result show wrong-result';
+    document.getElementById('qzResult').textContent = `❌ ${w.cebuano} = ${tw.english}`;
+  }
+  document.getElementById('qzNext').style.display = 'inline-block';
+}
+
+function checkTyping(wordId, isReverse) {
+  const input = document.getElementById('typingInput');
+  const w = WORDS.find(x => x.id === wordId);
+  const tw = getTranslation(w);
+  const answer = input.value.trim().toLowerCase();
+  const correctAnswers = isReverse
+    ? [w.cebuano.toLowerCase()]
+    : tw.english.toLowerCase().split(' / ').map(s => s.trim());
+
+  const correct = correctAnswers.some(c => answer === c || answer === c.replace(/[()]/g, '').trim());
+
+  input.disabled = true;
+  if (correct) {
+    input.classList.add('correct');
+    quizCorrect++;
+    quizCombo++;
+    if (quizCombo > quizMaxCombo) quizMaxCombo = quizCombo;
+    document.getElementById('qzResult').className = 'quiz-result show correct-result';
+    document.getElementById('qzResult').textContent = T('quizCorrect');
+  } else {
+    input.classList.add('wrong');
+    quizCombo = 0;
+    document.getElementById('qzResult').className = 'quiz-result show wrong-result';
+    document.getElementById('qzResult').innerHTML = `❌ ${T('quizWrongAnswer')} <strong>${isReverse ? w.cebuano : tw.english}</strong>`;
+  }
+  document.getElementById('qzNext').style.display = 'inline-block';
+}
+
+function matchClick(el) {
+  const id = el.dataset.id;
+  const side = el.dataset.side;
+
+  if (el.classList.contains('matched')) return;
+
+  if (!matchSelected) {
+    matchSelected = { el, id, side };
+    el.classList.add('selected');
+  } else {
+    if (matchSelected.side === side) {
+      matchSelected.el.classList.remove('selected');
+      matchSelected = { el, id, side };
+      el.classList.add('selected');
+      return;
+    }
+
+    if (matchSelected.id === id) {
+      // Correct match
+      matchSelected.el.classList.remove('selected');
+      matchSelected.el.classList.add('matched');
+      el.classList.add('matched');
+      matchPairs[id] = true;
+
+      // Check if all matched
+      const totalPairs = document.querySelectorAll('.match-item[data-side="ceb"]').length;
+      if (Object.keys(matchPairs).length === totalPairs) {
+        quizCorrect++;
+        quizCombo++;
+        if (quizCombo > quizMaxCombo) quizMaxCombo = quizCombo;
+        document.getElementById('qzResult').className = 'quiz-result show correct-result';
+        document.getElementById('qzResult').textContent = T('quizAllMatched');
+        document.getElementById('qzNext').style.display = 'inline-block';
+      }
+    } else {
+      // Wrong match
+      el.classList.add('wrong-match');
+      matchSelected.el.classList.add('wrong-match');
+      setTimeout(() => {
+        el.classList.remove('wrong-match', 'selected');
+        matchSelected.el.classList.remove('wrong-match', 'selected');
+        matchSelected = null;
+      }, 600);
+      return;
+    }
+    matchSelected = null;
+  }
+}
+
+// ==================== SENTENCE BUILDER ====================
+let sentIdx = 0;
+let sentSlots = [];
+
+function initSentences() {
+  sentIdx = 0;
+  showSentence();
+}
+
+function showSentence() {
+  const el = document.getElementById('sentenceMode');
+
+  if (sentIdx >= SENTENCES.length) sentIdx = 0;
+  const s = SENTENCES[sentIdx];
+  sentSlots = [];
+
+  const shuffled = [...s.words].sort(() => Math.random() - 0.5);
+
+  el.innerHTML = `
+    <div class="sentence-card">
+      <div class="sentence-prompt">${T('sentBuild')}</div>
+      <div class="sentence-translation">"${s.english}"</div>
+      <div class="sentence-slots" id="sentSlots"><span style="color:var(--text-dim)">${T('sentTapWords')}</span></div>
+      <div class="word-bank" id="wordBank">
+        ${shuffled.map((w, i) => `<div class="word-chip" data-word="${w}" data-idx="${i}" onclick="addToSentence(this)">${w}</div>`).join('')}
+      </div>
+      <button class="sentence-check-btn" onclick="checkSentence()">${T('sentCheck')}</button>
+      <div class="sentence-result" id="sentResult"></div>
+      <button class="sentence-next-btn" id="sentNext" onclick="sentIdx++;showSentence()">${T('quizNext')}</button>
+    </div>
+    <p style="color:var(--text-dim);text-align:center;margin-top:10px;font-size:0.85em">${T('sentHint')} ${s.hint}</p>`;
+}
+
+function addToSentence(chipEl) {
+  if (chipEl.classList.contains('in-slot')) {
+    // Remove from slot
+    chipEl.classList.remove('in-slot');
+    sentSlots = sentSlots.filter(w => w !== chipEl.dataset.word + '_' + chipEl.dataset.idx);
+  } else {
+    chipEl.classList.add('in-slot');
+    sentSlots.push(chipEl.dataset.word + '_' + chipEl.dataset.idx);
+  }
+
+  const slotsEl = document.getElementById('sentSlots');
+  if (sentSlots.length === 0) {
+    slotsEl.innerHTML = '<span style="color:var(--text-dim)">' + T('sentTapWords') + '</span>';
+  } else {
+    slotsEl.innerHTML = sentSlots.map(s => {
+      const word = s.split('_')[0];
+      return `<span style="color:var(--text);font-size:1.1em;font-weight:600">${word}</span>`;
+    }).join(' ');
+  }
+}
+
+function checkSentence() {
+  const s = SENTENCES[sentIdx];
+  const built = sentSlots.map(sl => sl.split('_')[0]);
+  const correct = built.join(' ') === s.words.join(' ');
+  const slotsEl = document.getElementById('sentSlots');
+  const resultEl = document.getElementById('sentResult');
+
+  if (correct) {
+    slotsEl.classList.add('correct');
+    resultEl.innerHTML = `<span style="color:var(--green)">${T('quizCorrect')} "${s.words.join(' ')}" = "${s.english}"</span>`;
+  } else {
+    slotsEl.classList.add('wrong');
+    resultEl.innerHTML = `<span style="color:var(--red)">❌ ${T('sentCorrectOrder')} <strong>${s.words.join(' ')}</strong></span>`;
+  }
+  document.getElementById('sentNext').style.display = 'inline-block';
+}
+
+// ==================== BROWSE MODE ====================
+let currentFilter = 'all';
+
+function renderFilters() {
+  const categories = ['all', ...new Set(WORDS.map(w => w.category))];
+  const labels = UI.filters[currentLang];
+  document.getElementById('categoryFilters').innerHTML = categories.map(c =>
+    `<button class="filter-btn ${c===currentFilter?'active':''}" onclick="currentFilter='${c}';renderFilters();renderCards()">${labels[c]||c}</button>`
+  ).join('');
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  const words = currentFilter === 'all' ? WORDS : WORDS.filter(w => w.category === currentFilter);
+
+  grid.innerHTML = words.map(w => {
+    const t = getTranslation(w);
+    const sr = getSR(w.id);
+    const level = Math.min(sr.repetition, 5);
+    const dots = Array.from({length:5}, (_,i) =>
+      `<div class="level-dot ${i<level?'filled':''}"></div>`
+    ).join('');
+    const isDue = sr.dueDate <= Date.now();
+    const statusText = sr.lastReview ? (isDue ? 'Due!' : `${Math.ceil((sr.dueDate-Date.now())/86400000)}d`) : 'New';
+
+    return `
+      <div class="word-card ${w.category}" onclick="this.classList.toggle('flipped')">
+        <span class="category-badge">${w.category}</span>
+        <button class="audio-btn" onclick="event.stopPropagation();speak('${w.cebuano}')" title="Listen">🔊</button>
+        <div class="emoji">${w.emoji}</div>
+        <div class="cebuano">${w.cebuano}</div>
+        <div class="pronunciation">[${t.pronunciation}]</div>
+        <div class="english">${t.english}</div>
+        <div class="example-text">"${w.example}" — ${t.exampleEn}</div>
+        <div class="mnemonic">💡 ${t.mnemonic}</div>
+        <div class="level-dots">${dots}</div>
+        <span class="sr-info">${statusText}</span>
+      </div>`;
+  }).join('');
+}
+
+// ==================== SETTINGS ====================
+function loadSettings() {
+  refreshSettings();
+}
+
+function saveSetting(key, value) {
+  if (key === 'newPerDay' || key === 'quizCount') value = parseInt(value);
+  state.settings[key] = value;
+  saveState();
+}
+
+function resetProgress() {
+  if (confirm(T('settingsResetConfirm'))) {
+    localStorage.removeItem('cebuano_v2');
+    state = loadState();
+    updateStats();
+    switchTab('daily');
+  }
+}
+
+// ==================== INIT ====================
+// Set lang buttons
+document.getElementById('langRU').classList.toggle('active', currentLang === 'ru');
+document.getElementById('langEN').classList.toggle('active', currentLang === 'en');
+updateStats();
+initDaily();
+</script>
+</body>
+</html>

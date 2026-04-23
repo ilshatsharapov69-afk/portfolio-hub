@@ -1,0 +1,25 @@
+---
+interface Props {
+  src: string;
+  title: string;
+  height?: string;
+}
+
+const { src, title, height = '720px' } = Astro.props;
+---
+
+<div class="my-8 rounded-xl border border-neutral-800 overflow-hidden bg-neutral-950">
+  <div class="flex items-center justify-between px-4 py-2 bg-neutral-900/60 border-b border-neutral-800 text-xs text-neutral-400">
+    <span>Live embed · {title}</span>
+    <a href={src} target="_blank" rel="noopener" class="hover:text-neutral-100 transition">
+      Open fullscreen →
+    </a>
+  </div>
+  <iframe
+    src={src}
+    title={title}
+    style={`height: ${height}`}
+    class="w-full border-0 block bg-white"
+    loading="lazy"
+  />
+</div>

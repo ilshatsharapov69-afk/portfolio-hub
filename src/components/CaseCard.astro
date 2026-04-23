@@ -1,0 +1,51 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  tagline: string;
+  stack: string[];
+  result: string;
+  status: 'live' | 'in-progress' | 'archived';
+}
+
+const { slug, title, tagline, stack, result, status } = Astro.props;
+
+const statusStyles = {
+  live: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+  'in-progress': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+  archived: 'bg-neutral-700/30 text-neutral-400 border-neutral-600/40',
+};
+
+const statusLabel = {
+  live: 'Live',
+  'in-progress': 'In progress',
+  archived: 'Archived',
+};
+---
+
+<a
+  href={`/cases/${slug}`}
+  class="block group rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 hover:border-neutral-600 hover:bg-neutral-900/80 transition"
+>
+  <div class="flex items-start justify-between gap-4 mb-3">
+    <h2 class="text-lg font-semibold text-neutral-100 group-hover:text-white transition">
+      {title}
+    </h2>
+    <span class={`text-xs px-2 py-0.5 rounded-full border ${statusStyles[status]} whitespace-nowrap`}>
+      {statusLabel[status]}
+    </span>
+  </div>
+  <p class="text-sm text-neutral-400 leading-relaxed mb-4">
+    {tagline}
+  </p>
+  <div class="flex flex-wrap gap-1.5 mb-4">
+    {stack.map((s) => (
+      <span class="text-xs text-neutral-500 border border-neutral-800 rounded px-1.5 py-0.5">
+        {s}
+      </span>
+    ))}
+  </div>
+  <p class="text-sm text-neutral-300">
+    <span class="text-neutral-500">Result:</span> {result}
+  </p>
+</a>

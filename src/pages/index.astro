@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CaseCard from '../components/CaseCard.astro';
+import { getCollection } from 'astro:content';
+
+const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Ilshat Sharapov — AI/Automation Engineer">
+  <section class="mb-16">
+    <h1 class="text-4xl md:text-5xl font-semibold text-neutral-100 tracking-tight leading-tight mb-4">
+      AI & automation engineer
+    </h1>
+    <p class="text-lg text-neutral-400 leading-relaxed max-w-2xl">
+      I ship AI agents, browser automations, and data pipelines that do real work — not demos.
+      Below is what I've built recently. Most of it is running in production for an audience of one: me.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-wider text-neutral-500 mb-5">
+      Case studies · {cases.length}
+    </h2>
+    <div class="grid gap-4 md:grid-cols-2">
+      {cases.map((c) => (
+        <CaseCard
+          slug={c.id}
+          title={c.data.title}
+          tagline={c.data.tagline}
+          stack={c.data.stack}
+          result={c.data.result}
+          status={c.data.status}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DashboardEmbed from '../../components/DashboardEmbed.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const cases = await getCollection('cases');
+  return cases.map((c) => ({ params: { slug: c.id }, props: { entry: c } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, tagline, stack, result, demoUrl, repoUrl, embedPath, status } = entry.data;
+
+const statusLabel = { live: 'Live', 'in-progress': 'In progress', archived: 'Archived' };
+const statusStyles = {
+  live: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+  'in-progress': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+  archived: 'bg-neutral-700/30 text-neutral-400 border-neutral-600/40',
+};
+---
+
+<BaseLayout title={`${title} — Ilshat Sharapov`} description={tagline}>
+  <a href="/" class="inline-block text-sm text-neutral-500 hover:text-neutral-200 transition mb-8">
+    ← All cases
+  </a>
+
+  <article>
+    <header class="mb-8">
+      <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
+        <h1 class="text-3xl md:text-4xl font-semibold text-neutral-100 tracking-tight">
+          {title}
+        </h1>
+        <span class={`text-xs px-2.5 py-1 rounded-full border ${statusStyles[status]}`}>
+          {statusLabel[status]}
+        </span>
+      </div>
+      <p class="text-lg text-neutral-400 leading-relaxed max-w-2xl mb-5">
+        {tagline}
+      </p>
+      <div class="flex flex-wrap gap-2 mb-5">
+        {stack.map((s) => (
+          <span class="text-xs text-neutral-400 border border-neutral-800 bg-neutral-900/50 rounded px-2 py-1">
+            {s}
+          </span>
+        ))}
+      </div>
+      <div class="flex flex-wrap gap-3">
+        {demoUrl && (
+          <a
+            href={demoUrl}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg bg-neutral-100 text-neutral-900 hover:bg-white transition font-medium"
+          >
+            Live demo →
+          </a>
+        )}
+        {repoUrl && (
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg border border-neutral-700 text-neutral-200 hover:border-neutral-500 transition"
+          >
+            GitHub →
+          </a>
+        )}
+      </div>
+    </header>
+
+    {embedPath && (
+      <DashboardEmbed src={embedPath} title={title} />
+    )}
+
+    <div class="prose prose-invert prose-neutral max-w-none
+                prose-headings:text-neutral-100 prose-headings:font-semibold prose-headings:tracking-tight
+                prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-3
+                prose-p:text-neutral-300 prose-p:leading-relaxed
+                prose-strong:text-neutral-100
+                prose-li:text-neutral-300
+                prose-a:text-neutral-100 prose-a:underline hover:prose-a:text-white
+                prose-code:text-emerald-300 prose-code:bg-neutral-900 prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
