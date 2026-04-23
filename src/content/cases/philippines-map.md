@@ -4,6 +4,8 @@ order: 1
 tagline: Interactive Leaflet map with 78 curated locations in Cebu — ratings, safety layers, volcano & earthquake overlays. Built to help expats and locals make informed housing decisions.
 stack: ["Leaflet.js", "Vanilla JS", "GeoJSON", "GitHub Pages"]
 result: 78 locations mapped across 5 data layers (infrastructure, safety, natural hazards, amenities, ratings). Fully offline-capable static site.
+demoUrl: "https://ilshatsharapov69-afk.github.io/cebu-living-map/"
+embedPath: "https://ilshatsharapov69-afk.github.io/cebu-living-map/"
 repoUrl: "https://github.com/ilshatsharapov69-afk/cebu-living-map"
 status: live
 ---

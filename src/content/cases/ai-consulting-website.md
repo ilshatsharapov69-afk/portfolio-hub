@@ -3,7 +3,9 @@ title: AI Consulting Website
 order: 4
 tagline: Astro-powered landing site for AI consulting — designed to convert YouTube traffic into discovery calls. Built, deployed, iterating on copy.
 stack: ["Astro", "TypeScript", "Tailwind CSS", "Cloudflare Pages"]
-result: Production site on Cloudflare Pages. Methodology-first positioning (data audits, AI workflows) over industry niche.
+result: Production site on Cloudflare Pages with custom domain. Methodology-first positioning (data audits, AI workflows) over industry niche.
+demoUrl: "https://setpointaudit.com"
+embedPath: "https://setpointaudit.com"
 status: live
 ---
 
