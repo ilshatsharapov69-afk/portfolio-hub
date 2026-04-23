@@ -1,34 +1,31 @@
 ---
 title: Philippines Living Map
 order: 1
-tagline: Interactive Leaflet map with 78 curated locations in Cebu — ratings, safety layers, volcano & earthquake overlays. Built to help expats and locals make informed housing decisions.
-stack: ["Leaflet.js", "Vanilla JS", "GeoJSON", "GitHub Pages"]
-result: 78 locations mapped across 5 data layers (infrastructure, safety, natural hazards, amenities, ratings). Fully offline-capable static site.
-demoUrl: "https://ilshatsharapov69-afk.github.io/cebu-living-map/"
-embedPath: "https://ilshatsharapov69-afk.github.io/cebu-living-map/"
-repoUrl: "https://github.com/ilshatsharapov69-afk/cebu-living-map"
+tagline: Interactive Philippines map — 200 curated locations, 9 hazard layers (earthquakes, typhoons, eruptions, floods, and more), year-based filters, lifestyle presets, dark/light theme, RU/EN. Live embedded below.
+stack: ["Leaflet.js", "Vanilla JS", "GeoJSON", "OpenStreetMap Overpass"]
+result: 200 locations × 9 hazard layers × lifestyle preset scoring. Fully static SPA — no backend, no build step, instant load.
+embedPath: "/dashboards/philippines-map/"
 status: live
 ---
 
 ## Problem
 
-Expats moving to Cebu face a messy information landscape — dozens of Facebook groups, outdated blog posts, conflicting advice on "safe" vs "risky" areas. No single resource combines location-level ratings with real geographic context like earthquake fault lines or flood zones.
+Picking where to live or travel in the Philippines is a mess of outdated blog posts, Facebook groups, and single-axis "best beach" lists. None of it shows hazard history in context with real locations — an area looks great until you realize it's under a typhoon corridor with three eruptions in the last decade.
 
 ## Solution
 
-A static interactive map that pulls everything into one layered view:
+A single-page Leaflet app that folds everything into one layered view:
 
-- **Locations layer** — 78 manually curated points (districts, neighborhoods, landmarks) with rating and commentary
-- **Safety layer** — risk zones based on public crime and disaster data
-- **Natural hazards** — volcano proximity and earthquake fault overlays from USGS data
-- **Infrastructure** — hospitals, malls, internet-quality clusters
-
-The entire thing is a single-page Leaflet.js app, no backend, hosted on GitHub Pages for zero cost.
+- **200 curated locations** — cities, towns, beaches, hikes, attractions, with ratings and commentary
+- **9 hazard layers** — earthquakes, volcanic eruptions, typhoons, floods, landslides, and more, with year-based filtering so you can scope "last 5 years" or "since 2000"
+- **Lifestyle presets** — one-click scoring profiles (digital nomad, family, beach-first, hiker) that re-rank locations against the layers that matter to each persona
+- **Dark / light theme + RU / EN** — switchable without reload
+- **POI data on demand** — pulls OpenStreetMap points of interest via Overpass API on zoom
 
 ## Stack
 
-Leaflet.js for the map engine, vanilla JavaScript for layer toggling, GeoJSON for data. Deployed as a static site.
+Leaflet.js + vanilla JavaScript (no framework, no build step). GeoJSON data bundled in-repo. OpenStreetMap Overpass API for on-demand POIs. Purely static — deploys anywhere, including inside this portfolio.
 
 ## Why this matters
 
-Shows the ability to take a messy domain (personal research notes + public datasets) and turn it into a sharable, useful product. No framework bloat — just the minimum needed to ship.
+Feature density without framework bloat. 200 locations, 9 data layers, multi-theme, i18n, lifestyle presets — all in a no-build vanilla-JS SPA that loads in under a second. Shows the willingness to pick the minimum tool that matches the problem rather than defaulting to React for everything.
