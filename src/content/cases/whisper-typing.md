@@ -1,6 +1,6 @@
 ---
 title: Whisper Typing
-order: 5
+order: 6
 tagline: Windows speech-to-text fork with enhancements — local faster-whisper, natural typing simulation, global hotkey, media pause, system tray. No cloud, no account.
 stack: ["Python", "faster-whisper", "PyAutoGUI", "Windows APIs"]
 result: Daily driver dictation tool. Forked upstream + added audio overlay, media pause, hold-to-record mode. Public fork on GitHub.

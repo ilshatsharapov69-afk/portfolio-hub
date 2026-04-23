@@ -1,0 +1,32 @@
+{
+  "service-classic-haircut.png": {
+    "backend": "gemini-3.1",
+    "model": "gemini-3.1-flash-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "03fe2d9a",
+    "timestamp": "2026-04-15T07:58:47",
+    "attempts": 1,
+    "file_size_kb": 1439,
+    "generation_time_s": 32.1
+  },
+  "service-beard-trim.png": {
+    "backend": "gemini-3.1",
+    "model": "gemini-3.1-flash-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "a86e3b5a",
+    "timestamp": "2026-04-15T07:59:08",
+    "attempts": 1,
+    "file_size_kb": 1477,
+    "generation_time_s": 15.9
+  },
+  "service-hot-towel.png": {
+    "backend": "gemini-3.1",
+    "model": "gemini-3.1-flash-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "6757f0a0",
+    "timestamp": "2026-04-15T07:59:30",
+    "attempts": 1,
+    "file_size_kb": 1485,
+    "generation_time_s": 16.4
+  }
+}

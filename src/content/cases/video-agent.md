@@ -1,6 +1,6 @@
 ---
 title: VideoAgent
-order: 6
+order: 7
 tagline: Unified YouTube pipeline — one recording in, one long-form video + multiple shorts out. EDL-driven cuts, Whisper transcripts, MediaPipe face tracking, Remotion composition, FFmpeg render.
 stack: ["Python", "Whisper", "MediaPipe", "Remotion", "FFmpeg"]
 result: End-to-end EDL → long + shorts pipeline. 6/6 E2E passing, 94/94 unit tests green as of Day 6 build.

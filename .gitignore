@@ -15,7 +15,11 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
 .env.production
+
+# deploy helper profile
+scripts/_last_screenshot.png
 
 # macOS-specific files
 .DS_Store

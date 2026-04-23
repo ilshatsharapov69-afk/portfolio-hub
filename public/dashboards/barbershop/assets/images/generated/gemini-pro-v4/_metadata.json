@@ -1,0 +1,182 @@
+{
+  "service-classic-haircut.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "e74fe574",
+    "timestamp": "2026-04-15T08:43:09",
+    "attempts": 1,
+    "file_size_kb": 1564,
+    "generation_time_s": 21.7
+  },
+  "service-beard-trim.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "a74415a9",
+    "timestamp": "2026-04-15T08:43:35",
+    "attempts": 1,
+    "file_size_kb": 1493,
+    "generation_time_s": 21.0
+  },
+  "service-hot-towel.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "9d4996e0",
+    "timestamp": "2026-04-15T08:44:06",
+    "attempts": 1,
+    "file_size_kb": 1478,
+    "generation_time_s": 25.7
+  },
+  "service-combo.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "ba67ba59",
+    "timestamp": "2026-04-15T08:44:35",
+    "attempts": 1,
+    "file_size_kb": 1434,
+    "generation_time_s": 24.0
+  },
+  "service-kids-cut.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "84e0e3fc",
+    "timestamp": "2026-04-15T08:45:03",
+    "attempts": 1,
+    "file_size_kb": 1441,
+    "generation_time_s": 22.1
+  },
+  "service-premium.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "36fb9470",
+    "timestamp": "2026-04-15T08:45:31",
+    "attempts": 1,
+    "file_size_kb": 1485,
+    "generation_time_s": 23.7
+  },
+  "gallery-interior.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "3af75bea",
+    "timestamp": "2026-04-15T08:46:03",
+    "attempts": 1,
+    "file_size_kb": 1368,
+    "generation_time_s": 26.4
+  },
+  "gallery-tools.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "fa4c7f86",
+    "timestamp": "2026-04-15T08:46:34",
+    "attempts": 1,
+    "file_size_kb": 1553,
+    "generation_time_s": 26.0
+  },
+  "gallery-action-1.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "89a30e81",
+    "timestamp": "2026-04-15T08:47:01",
+    "attempts": 1,
+    "file_size_kb": 1485,
+    "generation_time_s": 21.7
+  },
+  "gallery-action-2.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "c00e9504",
+    "timestamp": "2026-04-15T08:47:26",
+    "attempts": 1,
+    "file_size_kb": 1478,
+    "generation_time_s": 20.3
+  },
+  "gallery-chair.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "05bd0b3b",
+    "timestamp": "2026-04-15T08:48:03",
+    "attempts": 1,
+    "file_size_kb": 1370,
+    "generation_time_s": 31.5
+  },
+  "gallery-products.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "5005326d",
+    "timestamp": "2026-04-15T08:48:30",
+    "attempts": 1,
+    "file_size_kb": 1438,
+    "generation_time_s": 22.7
+  },
+  "gallery-vibe.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "6b30aca2",
+    "timestamp": "2026-04-15T08:48:57",
+    "attempts": 1,
+    "file_size_kb": 1523,
+    "generation_time_s": 21.9
+  },
+  "team-alex.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "fb6761d9",
+    "timestamp": "2026-04-15T08:49:25",
+    "attempts": 1,
+    "file_size_kb": 1471,
+    "generation_time_s": 22.7
+  },
+  "team-marcus.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "8ba92078",
+    "timestamp": "2026-04-15T08:49:53",
+    "attempts": 1,
+    "file_size_kb": 1409,
+    "generation_time_s": 22.5
+  },
+  "team-james.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "47fd1ac6",
+    "timestamp": "2026-04-15T08:50:21",
+    "attempts": 1,
+    "file_size_kb": 1409,
+    "generation_time_s": 22.9
+  },
+  "hero-poster.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "4e075f3e",
+    "timestamp": "2026-04-15T08:50:48",
+    "attempts": 1,
+    "file_size_kb": 1515,
+    "generation_time_s": 22.4
+  },
+  "cta-background.png": {
+    "backend": "gemini-pro",
+    "model": "gemini-3-pro-image-preview",
+    "prompt_type": "full",
+    "prompt_hash": "81a84f2f",
+    "timestamp": "2026-04-15T08:51:19",
+    "attempts": 1,
+    "file_size_kb": 1463,
+    "generation_time_s": 25.7
+  }
+}

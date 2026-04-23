@@ -1,6 +1,6 @@
 ---
 title: DeepResearch System
-order: 7
+order: 8
 tagline: A personal research system — 3 skills, 48 stored reports, 285+ sources. Structured pipeline for turning vague questions into citable, reusable knowledge. Live command-center embedded below.
 stack: ["Markdown", "YAML frontmatter", "Claude Code skills", "WebSearch + MCP"]
 result: 48 indexed research reports spanning AI tooling, content strategy, and technical deep-dives. Every claim is source-backed — every report is reusable context for future work.
